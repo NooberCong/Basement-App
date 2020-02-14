@@ -29,6 +29,11 @@ const reducer = (state, action) => {
                 ...state,
                 all: [action.payload, ...state.all]
             }
+        case 'UPDATE_FLUSH':
+            return {
+                ...state,
+                all: state.all.map(flush => flush.flushID === action.payload.flushID? {...flush, ...action.payload.updates}: flush)
+            }
         default: return state;
     }
 }

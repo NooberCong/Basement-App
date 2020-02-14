@@ -11,7 +11,8 @@ const { getAllFlushes,
     postComment,
     editFlush,
     deleteFlush,
-    uploadFlushPhoto } = require('./handlers/flushes');
+    uploadFlushPhoto,
+    getComments } = require('./handlers/flushes');
 const { signup,
     signin,
     uploadImage,
@@ -28,6 +29,7 @@ const { triggerLikeNotif,
 //Routes
 app.get('/flushes', getAllFlushes);
 app.get('/flushes/:flushID', getFlush);
+app.get('/flushes/:flushID/comment', getComments);
 app.post('/flushes', dbauth, postFlush);
 app.post('/flushes/image', dbauth, uploadFlushPhoto);
 app.post('/flushes/:flushID/comment', dbauth, postComment);

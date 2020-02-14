@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { postFlush } from '../actions/flushActions';
 import { isEmpty } from '../util/validators';
+
+//Actions
+import { postFlush, updateFlush } from '../actions/flushActions';
 
 //Mui
 import Paper from '@material-ui/core/Paper';
@@ -40,7 +42,8 @@ const useStyles = makeStyles(theme => ({
         outline: 'none',
         width: 'calc(100% - 40px)',
         resize: 'none',
-        fontFamily: 'sans-serif'
+        fontFamily: 'sans-serif',
+        fontSize: theme.spacing(2)
     },
     lower: {
         display: 'flex',
@@ -67,31 +70,32 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const FlushEditor = ({ flush, flushDispatch, user, cancel }) => {
+const FlushEditor = ({ flush, flushDispatch, user, close }) => {
     const isEdit = !isEmpty(flush);
     //Hooks
     const classes = useStyles();
     const [text, setText] = useState(flush.text ? flush.text : '');
-    
-    const [image, setImage] = useState(flush.photoUrl ? flush.photoUrl : null);
+    const [file, setFile] = useState(flush.photoUrl ? flush.photoUrl : '');
 
     //Helper Functions
     const handleSubmit = () => {
-        if (text) {
+        if (text || file) {
             if (isEmpty(flush)) {
-                postFlush(text, flushDispatch, image);
+                postFlush(text, flushDispatch, file);
             }
             else {
-                //patchFlush(text, flushDispatch, image);
+                updateFlush({text, file}, flushDispatch, flush.flushID, flush.photoUrl);
             }
             setText('');
-            setImage(null);
+            setFile(null);
         }
     }
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
-        if (['jpg', 'jpeg', 'png'].includes(file.name.split('.')[file.name.split('.').length - 1])) setImage(URL.createObjectURL(e.target.files[0]));
+        if (['jpg', 'jpeg', 'png'].includes(file.name.split('.')[file.name.split('.').length - 1])) {
+            setFile(e.target.files[0]);
+        };
     }
 
     return (
@@ -102,10 +106,12 @@ const FlushEditor = ({ flush, flushDispatch, user, cancel }) => {
                     <TextareaAutosize value={text} onChange={(e) => setText(e.target.value)} placeholder="What's happening?..." className={classes.flushText} />
                 </form>
             </div>
-            {image &&
+            {file &&
                 <div className={classes.imgContainer}>
-                    <img className={classes.media} src={image} alt="content" />
-                    <IconButton onClick={() => setImage(null)} className={classes.clearBtn}>
+                    <img className={classes.media} src={typeof file === "string"? file: URL.createObjectURL(file)} alt="content" />
+                    <IconButton onClick={() => {
+                        setFile('');
+                        }} className={classes.clearBtn}>
                         <ClearIcon />
                     </IconButton>
                 </div>
@@ -114,7 +120,7 @@ const FlushEditor = ({ flush, flushDispatch, user, cancel }) => {
                 <div>
                     <IconButton onClick={() => {
                         document.getElementById(isEdit? 'editImgInput': 'uploadImgInput').click();
-                        setImage(null);
+                        setFile('');
                         }} size='small' color='primary'>
                         <InsertPhotoIcon />
                         <input type="file" hidden='hidden' id={isEdit? 'editImgInput': 'uploadImgInput'} onChange={handleImageChange} />
@@ -125,8 +131,11 @@ const FlushEditor = ({ flush, flushDispatch, user, cancel }) => {
                 </div>
                 <div>
                     {isEdit &&
-                    <Button onClick={cancel} color='primary'>Cancel</Button>}
-                    <Button onClick={handleSubmit} variant={isEdit ? 'text' : 'contained'} color='primary'>{isEdit ? 'Save' : 'Flush'}</Button>
+                    <Button onClick={close} color='primary'>Cancel</Button>}
+                    <Button onClick={() => {
+                        handleSubmit();
+                        if (isEdit) close();
+                        }} variant={isEdit ? 'text' : 'contained'} color='primary'>{isEdit ? 'Save' : 'Flush'}</Button>
                 </div>
             </div>
         </Paper>

@@ -38,7 +38,7 @@ const useStyles = makeStyles(theme => ({
     root: {
         width: '100%',
         borderRadius: '0',
-        marginBottom: 2
+        marginBottom: theme.spacing(1)
     },
     media: {
         height: 0,
@@ -162,7 +162,7 @@ const Flush = ({ data }) => {
                                         </Button>
                                     </DialogActions>
                                 </>: diagOpen === 'Edit'?
-                                <FlushEditor flush={data} flushDispatch={flushDispatch} user={user} cancel={handleDiagClose} /> : <></>
+                                <FlushEditor flush={data} flushDispatch={flushDispatch} user={user} close={handleDiagClose} /> : <></>
                             }
                         </Dialog>
                     </>
@@ -171,7 +171,7 @@ const Flush = ({ data }) => {
                 subheader={dayjs(data.created).fromNow()}
             />
             <CardContent className={classes.content}>
-                <Typography variant="body2" color="textPrimary" component="p">
+                <Typography style={{fontSize: '16px'}} variant="body2" color="textPrimary" component="p">
                     {data.text}
                 </Typography>
             </CardContent>

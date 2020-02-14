@@ -56,16 +56,9 @@ export const deleteFlush = (flushID, userDispatch, flushDispatch) => {
 
 export const postFlush = async (text, flushDispatch, image) => {
     let photoUrl = '';
-    if (image) {
-        try {
-            const formData = new FormData();
-            formData.append('image', image, image.name);
-            const response = await axios.post('/flushes/image', formData);
-            photoUrl = response.data.imageUrl;
-        }
-        catch (err) {
-            console.log(err);
-        }
+    if (image && typeof image !== "string") {
+        const uploadResult = await uploadImage(image);
+        if (uploadResult) photoUrl = uploadResult;
     }
     axios.post('/flushes', { text, photoUrl })
     .then(response => {
@@ -74,4 +67,39 @@ export const postFlush = async (text, flushDispatch, image) => {
             payload: response.data });
     })
     .catch(err => console.log(err));
+}
+
+export const updateFlush = async (data, flushDispatch, flushID) => {
+    const updates = {};
+    if (data.text) updates.text = data.text;
+    if (typeof data.file !== "string") {
+        if (data.file) {
+            const uploadResult =  await uploadImage(data.file);
+            if (uploadResult) updates.photoUrl = uploadResult;
+        }
+    }
+    else {
+        if (!data.file) updates.photoUrl = '';
+    }
+    axios.patch(`/flushes/${flushID}`, updates)
+    .then(() => {
+        flushDispatch({
+            type: 'UPDATE_FLUSH',
+            payload: {updates, flushID}
+        });
+    })
+    .catch(err => console.log(err));
+}
+
+const uploadImage = async (file) => {
+    try {
+        const formData = new FormData();
+        formData.append('image', file, file.name);
+        const response = await axios.post('/flushes/image', formData);
+        return response.data.imageUrl;
+    }
+    catch (err) {
+        console.log(err);
+        return false;
+    }
 }

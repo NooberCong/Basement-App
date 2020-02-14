@@ -196,3 +196,17 @@ exports.editFlush = async (req, res) => {
         res.status(500).json({ message: 'Could not update flush' });
     }
 }
+
+exports.getComments = async (req, res) => {
+    try {
+        const data = await db.collection('comments')
+            .where('flushID', '==', req.params.flushID)
+            .orderBy('created', 'desc')
+            .get();
+        res.json(data.map(doc => doc.data()))
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Could not fetch comments' });
+    }
+}
