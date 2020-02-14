@@ -7,12 +7,28 @@ const initialState = {
 const flushContext = createContext();
 
 const reducer = (state, action) => {
-    switch(action.type) {
+    switch (action.type) {
         case 'SET_ALL_FLUSHES':
             return {
                 ...state,
                 all: action.payload
             };
+        case 'LIKE_FLUSH':
+        case 'UNLIKE_FLUSH':
+            state.all[state.all.findIndex(flush => flush.flushID === action.payload.flushID)] = action.payload;
+            return {
+                ...state
+            }
+        case 'DELETE_FLUSH':
+            return {
+                ...state,
+                all: state.all.filter(flush => flush.flushID !== action.payload)
+            }
+        case 'POST_FLUSH':
+            return {
+                ...state,
+                all: [action.payload, ...state.all]
+            }
         default: return state;
     }
 }

@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import Flush from './Flush.component';
 
+//Actions
+import { postFlush } from '../actions/flushActions';
+
 //Mui
 import Paper from '@material-ui/core/Paper';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
@@ -51,9 +54,15 @@ const useStyles = makeStyles(theme => ({
 
 
 
-const FlushSection = ({ data, user }) => {
+const FlushSection = ({ data, user, flushDispatch }) => {
     const classes = useStyles();
     const [text, setText] = useState('');
+    const handlePostFlush = () => {
+        if(text) {
+            postFlush(text, flushDispatch);
+            setText('');
+        }
+    }
 
     return (
         <div className={classes.bg}>
@@ -73,7 +82,7 @@ const FlushSection = ({ data, user }) => {
                             <MoodIcon />
                         </IconButton>
                     </div>
-                    <Button variant='contained' color='primary'>Flush</Button>
+                    <Button onClick={handlePostFlush} variant='contained' color='primary'>Flush</Button>
                 </div>
             </Paper>
             {data.map(flush => <Flush data={flush} key={flush.flushID} />)}

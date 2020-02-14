@@ -228,7 +228,6 @@ const Profile = ({ user, updateUser, setUnauthenticated }) => {
                     </IconButton>
                     <Typography variant='subtitle2'>More</Typography>
                     <Menu
-                        id="simple-menu"
                         anchorEl={anchorEl}
                         keepMounted
                         open={Boolean(anchorEl)}

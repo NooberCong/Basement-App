@@ -31,7 +31,7 @@ exports.postFlush = async (req, res) => {
         }
         const doc = await db.collection('flushes').add(newFlush);
         const resFLush = newFlush;
-        resFLush.id = doc.id;
+        resFLush.flushID = doc.id;
         res.json(resFLush);
     }
     catch (err) {

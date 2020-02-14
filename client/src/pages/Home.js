@@ -51,10 +51,10 @@ const Home = () => {
             <Grid container className={classes.content}>
                 <Grid item xs={12} sm={6}>
                     <Route path='/Profile'>
-                        <Profile user={user} updateUser={() => updateUser()} setUnauthenticated={() => userDispatch({ type: 'SET_UNAUTHENTICATED' })} />
+                        <Profile user={user} updateUser={() => updateUser(userDispatch)} setUnauthenticated={() => userDispatch({ type: 'SET_UNAUTHENTICATED' })} />
                     </Route>
                     <Route exact path='/'>
-                        <FlushSection data={flushData.all} user={user} />
+                        <FlushSection flushDispatch={flushDispatch} data={flushData.all} user={user} />
                     </Route>
                 </Grid>
                 <Grid item xs={12} sm={6}></Grid>
