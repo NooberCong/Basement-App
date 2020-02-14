@@ -17,3 +17,5 @@ exports.validateSignUp = (username, email, password, confirmP) => {
     });
     return signUpJoi.validate({ username, email, password, confirmP });
 }
+
+exports.isEmpty = (obj) => Object.entries(obj).length === 0;

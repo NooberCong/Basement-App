@@ -1,6 +1,7 @@
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 import { getAllFlushes } from '../actions/flushActions';
+import { isEmpty } from '../util/validators';
 
 export const updateUser = (dispatch) => {
     axios.get('/users').then(response => dispatch({
@@ -18,7 +19,7 @@ export const validateUser = (userDispatch, flushDispatch, user, flushData, axios
     }
     else {
         axios.defaults.headers.common.authToken = token;
-        if(Object.entries(user.credentials).length === 0) updateUser(userDispatch);
+        if(isEmpty(user.credentials)) updateUser(userDispatch);
         if(!flushData.all.length) getAllFlushes(flushDispatch);
     }
 }

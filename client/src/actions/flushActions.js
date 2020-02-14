@@ -54,8 +54,20 @@ export const deleteFlush = (flushID, userDispatch, flushDispatch) => {
     .catch(err => console.log(err));
 }
 
-export const postFlush = (text, flushDispatch) => {
-    axios.post('/flushes', { text })
+export const postFlush = async (text, flushDispatch, image) => {
+    let photoUrl = '';
+    if (image) {
+        try {
+            const formData = new FormData();
+            formData.append('image', image, image.name);
+            const response = await axios.post('/flushes/image', formData);
+            photoUrl = response.data.imageUrl;
+        }
+        catch (err) {
+            console.log(err);
+        }
+    }
+    axios.post('/flushes', { text, photoUrl })
     .then(response => {
         flushDispatch( {
             type: 'POST_FLUSH',

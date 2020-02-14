@@ -9,7 +9,9 @@ const { getAllFlushes,
     getFlush,
     postFlush,
     postComment,
-    deleteFlush } = require('./handlers/flushes');
+    editFlush,
+    deleteFlush,
+    uploadFlushPhoto } = require('./handlers/flushes');
 const { signup,
     signin,
     uploadImage,
@@ -27,9 +29,11 @@ const { triggerLikeNotif,
 app.get('/flushes', getAllFlushes);
 app.get('/flushes/:flushID', getFlush);
 app.post('/flushes', dbauth, postFlush);
+app.post('/flushes/image', dbauth, uploadFlushPhoto);
 app.post('/flushes/:flushID/comment', dbauth, postComment);
 app.post('/flushes/:flushID/like', dbauth, likeFlush);
 app.post('/flushes/:flushID/unlike', dbauth, unlikeFlush);
+app.patch('/flushes/:flushID', dbauth, editFlush);
 app.delete('/flushes/:flushID', dbauth, deleteFlush);
 
 app.get('/users', dbauth, getOwnDetails);

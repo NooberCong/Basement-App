@@ -1,4 +1,6 @@
-const { db } = require('../utils/admin');
+const { admin, db } = require('../utils/admin');
+const BusBoy = require('busboy');
+const config = require('../utils/config');
 
 exports.getAllFlushes = async (req, res) => {
     try {
@@ -25,6 +27,7 @@ exports.postFlush = async (req, res) => {
             user: req.user.username,
             text: req.body.text,
             imageUrl: req.user.imageUrl,
+            photoUrl: req.body.photoUrl,
             created: new Date().toISOString(),
             likeCount: 0,
             commentCount: 0
@@ -106,7 +109,7 @@ exports.likeFlush = async (req, res) => {
     }
     catch (err) {
         console.error(err);
-        res.status(500).json({message: 'Could not like flush'});
+        res.status(500).json({ message: 'Could not like flush' });
     }
 }
 
@@ -126,20 +129,70 @@ exports.unlikeFlush = async (req, res) => {
     }
     catch (err) {
         console.error(err);
-        res.status(500).json({message: 'Could not unlike flush'});
+        res.status(500).json({ message: 'Could not unlike flush' });
     }
 }
 
 exports.deleteFlush = async (req, res) => {
     try {
         const doc = await db.doc(`/flushes/${req.params.flushID}`).get();
-        if (!doc.exists) return res.status(404).json({message: 'Flush does not exist'});
-        if (doc.data().user !== req.user.username) return res.status(403).json({message: 'You are not authorized to delete this flush'});
+        if (!doc.exists) return res.status(404).json({ message: 'Flush does not exist' });
+        if (doc.data().user !== req.user.username) return res.status(403).json({ message: 'You are not authorized to delete this flush' });
         await doc.ref.delete();
-        res.json({message: 'Flush deleted'});
+        res.json({ message: 'Flush deleted' });
     }
     catch (err) {
         console.error(err);
-        res.status(500).json({message: 'Could not delete flush'});
+        res.status(500).json({ message: 'Could not delete flush' });
+    }
+}
+
+exports.uploadFlushPhoto = async (req, res) => {
+    const fs = require('fs');
+    const os = require('os');
+    const path = require('path');
+    const busboy = new BusBoy({ headers: req.headers });
+    let imageMtype, imageFPath, imageFName;
+    busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+        if (mimetype != 'image/jpeg' && mimetype != 'image/png') {
+            return res.status(400).json({ message: 'Invalid file format, file must be an image' });
+        }
+        imageMtype = mimetype;
+        const imageExt = filename.split('.')[filename.split('.').length - 1];
+        imageFName = `${Math.round(Math.random() * 1000000)}.${imageExt}`;
+        imageFPath = path.join(os.tmpdir(), imageFName);
+        file.pipe(fs.createWriteStream(imageFPath));
+
+    });
+    busboy.on('finish', async () => {
+        try {
+            await admin.storage().bucket().upload(imageFPath, {
+                resumable: false,
+                metadata: {
+                    metadata: {
+                        contentType: imageMtype
+                    }
+                }
+            });
+            const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFName}?alt=media`;
+            res.status(201).json({ imageUrl });
+        }
+        catch (err) {
+            console.error(err);
+            res.status(500).json({ message: 'Could not upload photo' });
+        }
+    });
+    busboy.end(req.rawBody);
+}
+
+exports.editFlush = async (req, res) => {
+    try {
+        if (!req.body.text.trim() && !req.body.photoUrl.trim()) return res.status(400).json({ message: 'Cannot make a flush empty' });
+        await db.doc(`/flushes/${req.params.flushID}`).update(req.body);
+        res.json({ message: 'Flush successfully updated' });
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).json({ message: 'Could not update flush' });
     }
 }
