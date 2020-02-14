@@ -18,8 +18,7 @@ const useStyles = makeStyles(theme => ({
         width: '100%',
         minHeight: '12vh',
         marginBottom: theme.spacing(2),
-        padding: theme.spacing(2),
-        borderRadius: '0'
+        borderRadius: '0',
     },
     avatar: {
         alignSelf: 'flex-start',
@@ -32,7 +31,8 @@ const useStyles = makeStyles(theme => ({
     upper: {
         display: 'flex',
         alignItems: 'center',
-        width: '100%'
+        width: '100%',
+        padding: theme.spacing(2, 2, 1, 2)
     },
     flushText: {
         height: '2rem',
@@ -40,28 +40,42 @@ const useStyles = makeStyles(theme => ({
         border: 'none',
         outline: 'none',
         width: 'calc(100% - 40px)',
-        resize: 'none'
+        resize: 'none',
+        fontFamily: 'sans-serif'
     },
     lower: {
         display: 'flex',
-        marginTop: theme.spacing(2),
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        padding: theme.spacing(1, 2, 2, 2)
     },
     bg: {
         backgroundColor: '#f0f0f0'
+    },
+    media: {
+        height: 'auto',
+        width:'100%',
     }
 }))
 
 
 
-const FlushSection = ({ data, user, flushDispatch }) => {
+const FlushSection = ({ data, user, flushDispatch, setTab }) => {
+    setTab('Home');
+    //Hooks
     const classes = useStyles();
     const [text, setText] = useState('');
+    const [image, setImage] = useState(null);
+
+    //Helper Functions
     const handlePostFlush = () => {
-        if(text) {
+        if (text) {
             postFlush(text, flushDispatch);
             setText('');
         }
+    }
+
+    const handleImageChange = (e) => {
+        setImage(e.target.files[0]);
     }
 
     return (
@@ -73,10 +87,12 @@ const FlushSection = ({ data, user, flushDispatch }) => {
                         <TextareaAutosize value={text} onChange={(e) => setText(e.target.value)} placeholder="What's happening?..." className={classes.flushText} />
                     </form>
                 </div>
+                {image && <img className={classes.media} src={`${URL.createObjectURL(image)}`} alt="content"/>}
                 <div className={classes.lower}>
                     <div>
-                        <IconButton size='small' color='primary'>
+                        <IconButton onClick={() => document.getElementById('imageInput').click()} size='small' color='primary'>
                             <InsertPhotoIcon />
+                            <input type="file" hidden='hidden' id='imageInput' onChange={handleImageChange} />
                         </IconButton>
                         <IconButton size='small' color='primary'>
                             <MoodIcon />

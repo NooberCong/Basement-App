@@ -106,16 +106,17 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const Profile = ({ user, updateUser, setUnauthenticated }) => {
+const Profile = ({ user, updateUser, setUnauthenticated, setTab }) => {
+    setTab('Profile');
     //Hooks
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = useState(null);
     const [diagOpen, setDiagOpen] = useState(false);
 
     //Edit Details Input State
-    const [bio, setBio] = useState(user.credentials.bio? user.credentials.bio: '');
-    const [location, setLocation] = useState(user.credentials.location? user.credentials.location : '');
-    const [website, setWebsite] = useState(user.credentials.website? user.credentials.website : '');
+    const [bio, setBio] = useState(user.credentials.bio ? user.credentials.bio : '');
+    const [location, setLocation] = useState(user.credentials.location ? user.credentials.location : '');
+    const [website, setWebsite] = useState(user.credentials.website ? user.credentials.website : '');
 
     //Helper Functions
     const handleImageChange = (e) => {
@@ -141,9 +142,9 @@ const Profile = ({ user, updateUser, setUnauthenticated }) => {
     }
     const handleEdit = (e) => {
         e.preventDefault();
-        axios.post('/users', {bio, location, website})
-        .then(() => updateUser())
-        .catch(err => console.log(err));
+        axios.post('/users', { bio, location, website })
+            .then(() => updateUser())
+            .catch(err => console.log(err));
     }
     const handleLogOut = () => {
         localStorage.removeItem('idToken');
@@ -210,7 +211,7 @@ const Profile = ({ user, updateUser, setUnauthenticated }) => {
                             <Button onClick={(e) => {
                                 handleDiagClose();
                                 handleEdit(e);
-                                }} color="primary">
+                            }} color="primary">
                                 Save
                         </Button>
                         </DialogActions>
@@ -238,7 +239,7 @@ const Profile = ({ user, updateUser, setUnauthenticated }) => {
                         <MenuItem onClick={() => {
                             handleMenuClose();
                             handleLogOut();
-                            }}>Logout</MenuItem>
+                        }}>Logout</MenuItem>
                     </Menu>
                 </div>
             </Toolbar>

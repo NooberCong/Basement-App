@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const Bar = ({ toggleMobile }) => {
+const Bar = ({tab, toggleMobile }) => {
     const classes = useStyles();
     return (
         <AppBar position="fixed" className={classes.appBar}>
@@ -38,7 +38,7 @@ const Bar = ({ toggleMobile }) => {
                     <MenuIcon />
                 </IconButton>
                 <Typography variant="h6" noWrap>
-                    Home
+                    {tab}
                     </Typography>
             </Toolbar>
         </AppBar>

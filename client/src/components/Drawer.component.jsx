@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {Link } from 'react-router-dom';
 
 //Mui
@@ -59,8 +59,7 @@ const getPath = (s) => {
     }
 }
 
-const AppDrawer = ({ mobile, toggleMobile }) => {
-    const [tab, setTab] = useState(0);
+const AppDrawer = ({tab, setTab, mobile, toggleMobile }) => {
     const classes = useStyles();
     const drawer = (
         <div>
@@ -72,7 +71,7 @@ const AppDrawer = ({ mobile, toggleMobile }) => {
             <Divider />
             <List disablePadding>
                 {['Home', 'Notifications', 'Messages', 'Profile'].map((text, index) => (
-                    <ListItem onClick={() => setTab(index)} selected={tab === index} button key={text} component={Link} to={getPath(text)}>
+                    <ListItem onClick={() => setTab(text)} selected={text === tab} button key={text} component={Link} to={getPath(text)}>
                         <ListItemIcon>{[<HomeIcon />, <NotificationsIcon />, <ChatIcon />, <AccountCircleRoundedIcon />][index]}</ListItemIcon>
                         <ListItemText primary={text} />
                     </ListItem>

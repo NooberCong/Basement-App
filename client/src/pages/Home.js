@@ -36,25 +36,24 @@ const useStyles = makeStyles(theme => ({
 const Home = () => {
     const classes = useStyles();
     const [mobile, setMobile] = useState(false);
+    const [tab, setTab] = useState(0);
     const [user, userDispatch] = useUser();
     const [flushData, flushDispatch] = useFlush();
-
     //Check for user validation
     validateUser(userDispatch, flushDispatch, user, flushData, axios);
-    
 
     return (
         <div className={classes.root}>
             <CssBaseline />
-            <AppBar toggleMobile={() => setMobile(!mobile)} />
-            <Drawer mobile={mobile} toggleMobile={() => setMobile(!mobile)} />
+            <AppBar tab={tab} toggleMobile={() => setMobile(!mobile)} />
+            <Drawer tab={tab}  setTab={setTab} mobile={mobile} toggleMobile={() => setMobile(!mobile)} />
             <Grid container className={classes.content}>
                 <Grid item xs={12} sm={6}>
                     <Route path='/Profile'>
-                        <Profile user={user} updateUser={() => updateUser(userDispatch)} setUnauthenticated={() => userDispatch({ type: 'SET_UNAUTHENTICATED' })} />
+                        <Profile setTab={setTab} user={user} updateUser={() => updateUser(userDispatch)} setUnauthenticated={() => userDispatch({ type: 'SET_UNAUTHENTICATED' })} />
                     </Route>
                     <Route exact path='/'>
-                        <FlushSection flushDispatch={flushDispatch} data={flushData.all} user={user} />
+                        <FlushSection setTab={setTab} flushDispatch={flushDispatch} data={flushData.all} user={user} />
                     </Route>
                 </Grid>
                 <Grid item xs={12} sm={6}></Grid>
