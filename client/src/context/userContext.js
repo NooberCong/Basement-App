@@ -3,7 +3,6 @@ import React, { createContext, useReducer, useContext } from 'react';
 const initialState = {
     authenticated: false,
     credentials: {},
-    likes: [],
     notifications: []
 }
 
@@ -23,23 +22,9 @@ const reducer = (state, action) => {
                 ...state,
                 ...action.payload
             }
-        case 'LIKE_FLUSH':
-            return {
-                ...state,
-                likes: [...state.likes, {
-                    username: state.credentials.username,
-                    flushID: action.payload
-                }]
-            }
-        case 'UNLIKE_FLUSH':
-            return {
-                ...state,
-                likes: state.likes.filter(like => like.flushID !== action.payload)
-            }
         case 'DELETE_FLUSH':
             return {
                 ...state,
-                likes: state.likes.filter(like => like.flushID !== action.payload),
                 notifications: state.notifications.filter(notif => notif.flushID !== action.payload)
             }
         default: throw Error('Action not recognized');

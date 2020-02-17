@@ -1,6 +1,11 @@
 const functions = require('firebase-functions');
-const app = require('express')();
+const express = require('express');
+const app = express();
 const dbauth = require('./utils/auth');
+
+//Middlewares
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 //Handlers
 const { getAllFlushes,
@@ -9,10 +14,19 @@ const { getAllFlushes,
     getFlush,
     postFlush,
     postComment,
-    editFlush,
+    updateFlush,
     deleteFlush,
     uploadFlushPhoto,
-    getComments } = require('./handlers/flushes');
+    deleteComment,
+    updateComment,
+    likeComment,
+    unlikeComment,
+    replyComment,
+    getAllReplies,
+    likeReply,
+    unlikeReply,
+    deleteReply,
+    updateReply } = require('./handlers/flushes');
 const { signup,
     signin,
     uploadImage,
@@ -21,21 +35,31 @@ const { signup,
     getOwnDetails,
     markNotifAsRead } = require('./handlers/users');
 const { triggerLikeNotif,
-        triggerCommentNotif,
-        triggerUserImageChange,
-        triggerDelNotif,
-        triggerFlushDelete } = require('./utils/triggerers');
+    triggerCommentNotif,
+    triggerUserImageChange,
+    triggerDelNotif,
+    triggerFlushDelete,
+    triggerCommentDelete } = require('./utils/triggerers');
 
 //Routes
-app.get('/flushes', getAllFlushes);
-app.get('/flushes/:flushID', getFlush);
-app.get('/flushes/:flushID/comment', getComments);
+app.get('/flushes', dbauth, getAllFlushes);
+app.get('/flushes/:flushID', dbauth, getFlush);
+app.get('/comments/:commentID/replies', dbauth, getAllReplies);
 app.post('/flushes', dbauth, postFlush);
 app.post('/flushes/image', dbauth, uploadFlushPhoto);
 app.post('/flushes/:flushID/comment', dbauth, postComment);
 app.post('/flushes/:flushID/like', dbauth, likeFlush);
 app.post('/flushes/:flushID/unlike', dbauth, unlikeFlush);
-app.patch('/flushes/:flushID', dbauth, editFlush);
+app.post('/comments/:commentID/like', dbauth, likeComment);
+app.post('/comments/:commentID/unlike', dbauth, unlikeComment);
+app.post('/comments/:commentID/reply', dbauth, replyComment);
+app.post('/comments/:commentID/replies/:replyID/like', dbauth, likeReply);
+app.post('/comments/:commentID/replies/:replyID/unlike', dbauth, unlikeReply);
+app.patch('/flushes/:flushID', dbauth, updateFlush);
+app.patch('/comments/:commentID', dbauth, updateComment);
+app.patch('/replies/:replyID', dbauth, updateReply);
+app.delete('/replies/:replyID', dbauth, deleteReply);
+app.delete('/comments/:commentID', dbauth, deleteComment);
 app.delete('/flushes/:flushID', dbauth, deleteFlush);
 
 app.get('/users', dbauth, getOwnDetails);
@@ -47,9 +71,11 @@ app.post('/users/image', dbauth, uploadImage);
 app.post('/notifications', dbauth, markNotifAsRead);
 
 exports.api = functions.region('asia-east2').https.onRequest(app);
+
 //Function triggerers
 exports.OnLike = functions.region('asia-east2').firestore.document('likes/{id}').onCreate(triggerLikeNotif);
 exports.OnComment = functions.region('asia-east2').firestore.document('comments/{id}').onCreate(triggerCommentNotif);
 exports.OnUnlike = functions.region('asia-east2').firestore.document('likes/{id}').onDelete(triggerDelNotif);
 exports.onUserImageChange = functions.region('asia-east2').firestore.document('users/{id}').onUpdate(triggerUserImageChange);
 exports.onFlushDelete = functions.region('asia-east2').firestore.document('flushes/{id}').onDelete(triggerFlushDelete);
+exports.onCommentDelete = functions.region('asia-east2').firestore.document('comments/{id}').onDelete(triggerCommentDelete);

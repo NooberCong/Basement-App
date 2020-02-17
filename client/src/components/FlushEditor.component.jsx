@@ -8,7 +8,8 @@ import { postFlush, updateFlush } from '../actions/flushActions';
 import Paper from '@material-ui/core/Paper';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import InsertPhotoIcon from '@material-ui/icons/InsertPhoto';
-import MoodIcon from '@material-ui/icons/Mood';
+import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
+import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import ClearIcon from '@material-ui/icons/Clear';
 import { Avatar, Button } from '@material-ui/core';
@@ -19,7 +20,7 @@ const useStyles = makeStyles(theme => ({
         width: '100%',
         minHeight: '12vh',
         marginBottom: theme.spacing(2),
-        borderRadius: '0'
+        borderRadius: '0',
     },
     avatar: {
         alignSelf: 'flex-start',
@@ -84,7 +85,7 @@ const FlushEditor = ({ flush, flushDispatch, user, close }) => {
                 postFlush(text, flushDispatch, file);
             }
             else {
-                updateFlush({text, file}, flushDispatch, flush.flushID, flush.photoUrl);
+                updateFlush({ text, file }, flushDispatch, flush.flushID, flush.photoUrl);
             }
             setText('');
             setFile(null);
@@ -99,7 +100,7 @@ const FlushEditor = ({ flush, flushDispatch, user, close }) => {
     }
 
     return (
-        <Paper elevation={isEdit? 0: 1} className={classes.writeFlush}>
+        <Paper elevation={isEdit ? 0 : 1} className={classes.writeFlush}>
             <div className={classes.upper}>
                 <Avatar src={user.credentials.imageUrl} className={classes.avatar} />
                 <form style={{ width: '100%' }}>
@@ -108,34 +109,38 @@ const FlushEditor = ({ flush, flushDispatch, user, close }) => {
             </div>
             {file &&
                 <div className={classes.imgContainer}>
-                    <img className={classes.media} src={typeof file === "string"? file: URL.createObjectURL(file)} alt="content" />
+                    <img className={classes.media} src={typeof file === "string" ? file : URL.createObjectURL(file)} alt="content" />
                     <IconButton onClick={() => {
                         setFile('');
-                        }} className={classes.clearBtn}>
+                    }} className={classes.clearBtn}>
                         <ClearIcon />
                     </IconButton>
                 </div>
             }
             <div className={classes.lower}>
                 <div>
-                    <IconButton onClick={() => {
-                        document.getElementById(isEdit? 'editImgInput': 'uploadImgInput').click();
-                        setFile('');
+                    <Tooltip title='Insert Image' placement='top'>
+                        <IconButton onClick={() => {
+                            document.getElementById(isEdit ? 'editImgInput' : 'uploadImgInput').click();
+                            setFile('');
                         }} size='small' color='primary'>
-                        <InsertPhotoIcon />
-                        <input type="file" hidden='hidden' id={isEdit? 'editImgInput': 'uploadImgInput'} onChange={handleImageChange} />
-                    </IconButton>
-                    <IconButton size='small' color='primary'>
-                        <MoodIcon />
-                    </IconButton>
+                            <InsertPhotoIcon />
+                            <input type="file" hidden='hidden' id={isEdit ? 'editImgInput' : 'uploadImgInput'} onChange={handleImageChange} />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title='Insert Emoji' placement='top'>
+                        <IconButton size='small'>
+                            <EmojiEmotionsIcon color='primary' />
+                        </IconButton>
+                    </Tooltip>
                 </div>
                 <div>
                     {isEdit &&
-                    <Button onClick={close} color='primary'>Cancel</Button>}
+                        <Button onClick={close} color='primary'>Cancel</Button>}
                     <Button onClick={() => {
                         handleSubmit();
                         if (isEdit) close();
-                        }} variant={isEdit ? 'text' : 'contained'} color='primary'>{isEdit ? 'Save' : 'Flush'}</Button>
+                    }} variant={isEdit ? 'text' : 'contained'} color='primary'>{isEdit ? 'Save' : 'Flush'}</Button>
                 </div>
             </div>
         </Paper>

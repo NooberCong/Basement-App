@@ -18,6 +18,7 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Dialog from '@material-ui/core/Dialog';
+import Tooltip from '@material-ui/core/Tooltip'
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -27,7 +28,7 @@ import { useState } from 'react';
 
 const useStyles = makeStyles(theme => ({
     container: {
-        paddingTop: '3vh',
+        padding: '3vh 1vw',
         width: '100%',
         position: 'relative',
         textAlign: 'center',
@@ -60,13 +61,6 @@ const useStyles = makeStyles(theme => ({
         backgroundColor: '#fff',
         borderTop: '1px solid #bdc3c7',
         borderBottom: '1px solid #bdc3c7'
-    },
-    stat: {
-        height: '100%',
-        cursor: 'pointer'
-    },
-    statistics: {
-        fontWeight: 'bold'
     },
     icon: {
         transform: 'translateY(20%)',
@@ -152,13 +146,18 @@ const Profile = ({ user, updateUser, setUnauthenticated, setTab }) => {
     }
 
     return (
+        <>
         <div className={classes.container}>
             <div className={classes.bg} />
-            <Avatar src={user.credentials.imageUrl} className={classes.avatar} />
+            <a data-fancybox href={user.credentials.imageUrl}>
+                <Avatar src={user.credentials.imageUrl} className={classes.avatar} />
+            </a>
             <input type="file" hidden='hidden' id='imageInput' onChange={handleImageChange} />
-            <IconButton size='small' onClick={() => document.getElementById('imageInput').click()} className={classes.iconBtn} >
-                <CameraAltIcon className={classes.black} />
-            </IconButton>
+            <Tooltip title='Change profile picture' placement='right'>
+                <IconButton size='small' onClick={() => document.getElementById('imageInput').click()} className={classes.iconBtn} >
+                    <CameraAltIcon className={classes.black} />
+                </IconButton>
+            </Tooltip>
             <Typography variant='h5' className={classes.name}>
                 {user.credentials.username}
                 <CheckCircleIcon className={classes.icon} color='primary' />
@@ -243,24 +242,6 @@ const Profile = ({ user, updateUser, setUnauthenticated, setTab }) => {
                     </Menu>
                 </div>
             </Toolbar>
-            <div className={classes.stats}>
-                <div className={classes.stat}>
-                    <Typography className={classes.statistics} variant='subtitle2' color='textSecondary'>Flushes</Typography>
-                    <Typography className={classes.statistics} variant='h6' color='textSecondary'>127</Typography>
-                </div>
-                <div className={classes.stat}>
-                    <Typography className={classes.statistics} variant='subtitle2' color='textSecondary'>Following</Typography>
-                    <Typography className={classes.statistics} variant='h6' color='textSecondary'>12,700</Typography>
-                </div>
-                <div className={classes.stat}>
-                    <Typography className={classes.statistics} variant='subtitle2' color='textSecondary'>Followers</Typography>
-                    <Typography className={classes.statistics} variant='h6' color='textSecondary'>3,233,123</Typography>
-                </div>
-                <div className={classes.stat}>
-                    <Typography className={classes.statistics} variant='subtitle2' color='textSecondary'>Likes</Typography>
-                    <Typography className={classes.statistics} variant='h6' color='textSecondary'>2,333</Typography>
-                </div>
-            </div>
             <div className="details">
                 <Typography>{user.credentials.bio}</Typography>
                 <Typography>
@@ -277,6 +258,10 @@ const Profile = ({ user, updateUser, setUnauthenticated, setTab }) => {
                 </Typography>
             </div>
         </div>
+        <div className={classes.flushContainer}>
+            
+        </div>
+        </>
     )
 }
 

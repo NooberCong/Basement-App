@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime'
 import FlushEditor from '../components/FlushEditor.component';
+import CommentSection from './CommentSection.component';
 
 //Actions
 import { likeFlush, unlikeFlush, deleteFlush } from '../actions/flushActions';
@@ -27,6 +28,7 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import Tooltip from '@material-ui/core/Tooltip';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -96,12 +98,13 @@ const Flush = ({ data }) => {
     const [user, userDispatch] = useUser();
     const [anchorEl, setAnchor] = useState(null);
     const [diagOpen, setDiagOpen] = useState(false);
+    const [commentOpen, setCmtOpen] = useState(false);
     const flushDispatch = useFlush()[1];
 
     //Helper Functions
     const handleLikeBtn = (flushID) => {
-        if (!user.likes.filter(like => like.flushID === flushID).length) likeFlush(flushID, userDispatch, flushDispatch);
-        else unlikeFlush(flushID, userDispatch, flushDispatch);
+        if (!data.likedByUser) likeFlush(flushID, flushDispatch);
+        else unlikeFlush(flushID, flushDispatch);
     }
 
     const handleMenuOpen = (e) => {
@@ -139,15 +142,15 @@ const Flush = ({ data }) => {
                             <MenuItem onClick={() => {
                                 handleMenuClose();
                                 setDiagOpen('Edit');
-                                }}>Edit</MenuItem>
+                            }}>Edit</MenuItem>
                             <MenuItem onClick={() => {
                                 handleMenuClose();
                                 setDiagOpen('Delete');
                             }}>Delete</MenuItem>
                         </Menu>
                         <Dialog className={classes.diag} open={Boolean(diagOpen)} onClose={handleDiagClose} aria-labelledby="form-dialog-title">
-                            {diagOpen && <DialogTitle id="form-dialog-title">{diagOpen === 'Delete'? 'Confirm Delete': 'Edit Flush'}</DialogTitle>}
-                            {diagOpen === 'Delete'?
+                            {diagOpen && <DialogTitle id="form-dialog-title">{diagOpen === 'Delete' ? 'Confirm Delete' : 'Edit Flush'}</DialogTitle>}
+                            {diagOpen === 'Delete' ?
                                 <>
                                     <DialogContentText className={classes.diagContentText}>Are you sure you want to delete this flush?</DialogContentText>
                                     <DialogActions>
@@ -161,8 +164,8 @@ const Flush = ({ data }) => {
                                             Delete
                                         </Button>
                                     </DialogActions>
-                                </>: diagOpen === 'Edit'?
-                                <FlushEditor flush={data} flushDispatch={flushDispatch} user={user} close={handleDiagClose} /> : <></>
+                                </> : diagOpen === 'Edit' ?
+                                    <FlushEditor flush={data} flushDispatch={flushDispatch} user={user} close={handleDiagClose} /> : <></>
                             }
                         </Dialog>
                     </>
@@ -171,31 +174,41 @@ const Flush = ({ data }) => {
                 subheader={dayjs(data.created).fromNow()}
             />
             <CardContent className={classes.content}>
-                <Typography style={{fontSize: '16px'}} variant="body2" color="textPrimary" component="p">
+                <Typography style={{ fontSize: '16px' }} variant="body2" color="textPrimary" component="p">
                     {data.text}
                 </Typography>
             </CardContent>
             {data.photoUrl &&
                 <CardMedia
+                    component='a'
+                    href={data.photoUrl}
+                    data-fancybox
                     className={classes.media}
                     image={`${data.photoUrl}`}
                 />}
             <CardActions disableSpacing>
                 <div className={classes.interactionBtn}>
-                    <IconButton className={classes.btn} size='small' aria-label="comments">
-                        <ChatBubbleOutlineIcon />
-                    </IconButton>
+                    <Tooltip title='Comments' placement='top'>
+                        <IconButton onClick={() => setCmtOpen(true)} className={classes.btn} size='small' aria-label="comments">
+                            <ChatBubbleOutlineIcon />
+                        </IconButton>
+                    </Tooltip>
+                    <CommentSection user={user} flushID={data.flushID} flushDispatch={flushDispatch} open={commentOpen} close={() => setCmtOpen(false)} data={data.comments} />
                     <Typography variant='subtitle2' color='textSecondary'>{data.commentCount}</Typography>
                 </div>
                 <div className={classes.interactionBtn}>
-                    <IconButton size='small' className={classes.likeBtn} onClick={() => handleLikeBtn(data.flushID)} aria-label="add to favorites">
-                        {user.likes.filter(like => like.flushID === data.flushID).length ? (<FavoriteIcon style={{ color: '#fc5c65' }} />) : (<FavoriteBorderIcon className={classes.likeIcon} />)}
-                    </IconButton>
+                    <Tooltip title='Like' placement='top'>
+                        <IconButton size='small' className={classes.likeBtn} onClick={() => handleLikeBtn(data.flushID)} aria-label="add to favorites">
+                            {data.likedByUser? (<FavoriteIcon style={{ color: '#fc5c65' }} />) : (<FavoriteBorderIcon className={classes.likeIcon} />)}
+                        </IconButton>
+                    </Tooltip>
                     <Typography variant='subtitle2' color='textSecondary'>{data.likeCount}</Typography>
                 </div>
-                <IconButton className={classes.btn} size='small' aria-label="share">
-                    <ShareIcon />
-                </IconButton>
+                <Tooltip title='Share' placement='top'>
+                    <IconButton className={classes.btn} size='small' aria-label="share">
+                        <ShareIcon />
+                    </IconButton>
+                </Tooltip>
             </CardActions>
         </Card>
     );

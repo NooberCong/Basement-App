@@ -2,15 +2,31 @@ const { db } = require('./admin');
 
 exports.triggerLikeNotif = async (snapshot) => {
     try {
-        const doc = await db.doc(`/flushes/${snapshot.data().flushID}`).get();
-        if (!doc.exists || doc.data().user === snapshot.data().username) return;
-        const notif = {
-            from: snapshot.data().username,
-            to: doc.data().user,
-            read: false,
-            type: 'like',
-            flushID: doc.id,
-            created: new Date().toISOString()
+        let notif;
+        if (snapshot.commentID) {
+            const doc = db.doc(`/comments/${snapshot.commentID}`).get();
+            if (!doc.exists || doc.data().user === snapshot.data().username) return;
+            notif = {
+                from: snapshot.data().username,
+                to: doc.data().user,
+                read: false,
+                type: 'comment like',
+                flushID: doc.id,
+                commentID: snapshot.commentID,
+                created: new Date().toISOString()
+            }
+        }
+        else {
+            const doc = await db.doc(`/flushes/${snapshot.data().flushID}`).get();
+            if (!doc.exists || doc.data().user === snapshot.data().username) return;
+            notif = {
+                from: snapshot.data().username,
+                to: doc.data().user,
+                read: false,
+                type: 'flush like',
+                flushID: doc.id,
+                created: new Date().toISOString()
+            }
         }
         await db.doc(`/notifications/${snapshot.id}`).set(notif);
         return;
@@ -77,9 +93,26 @@ exports.triggerFlushDelete = async (snapshot) => {
         const likeData = await db.collection('likes').where('flushID', '==', flushID).get();
         const notifData = await db.collection('notifications').where('flushID', '==', flushID).get();
         const batch = db.batch();
-        commentData.forEach(doc => {batch.delete(doc.ref)});
-        likeData.forEach(doc => {batch.delete(doc.ref)});
-        notifData.forEach(doc => {batch.delete(doc.ref)});
+        commentData.forEach(doc => { batch.delete(doc.ref) });
+        likeData.forEach(doc => { batch.delete(doc.ref) });
+        notifData.forEach(doc => { batch.delete(doc.ref) });
+        return await batch.commit();
+    }
+    catch (err) {
+        return console.error(err);
+    }
+}
+
+exports.triggerCommentDelete = async (snapshot) => {
+    try {
+        const commentID = snapshot.id;
+        const likeData = await db.collection('likes').where('type', '==', 'commentLike').where('commentID', '==', commentID).get();
+        const notifData = await db.collection('notifications').where('commentID', '==', commentID).get();
+        const replyData = await db.collection('replies').where('commentID', '==', commentID).get();
+        const batch = db.batch();
+        replyData.forEach(doc => { batch.delete(doc.ref) });
+        likeData.forEach(doc => { batch.delete(doc.ref) });
+        notifData.forEach(doc => { batch.delete(doc.ref) });
         return await batch.commit();
     }
     catch (err) {
