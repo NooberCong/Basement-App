@@ -3,6 +3,7 @@ import React, { createContext, useReducer, useContext } from 'react';
 const initialState = {
     authenticated: false,
     credentials: {},
+    otherCredentials: {},
     notifications: []
 }
 
@@ -22,10 +23,20 @@ const reducer = (state, action) => {
                 ...state,
                 ...action.payload
             }
+        case 'SET_OTHER_USER':
+            return {
+                ...state,
+                otherCredentials: action.payload
+            }
         case 'DELETE_FLUSH':
             return {
                 ...state,
                 notifications: state.notifications.filter(notif => notif.flushID !== action.payload)
+            }
+        case 'FREE_OTHER_USER':
+            return {
+                ...state,
+                otherCredentials: {}
             }
         default: throw Error('Action not recognized');
     }

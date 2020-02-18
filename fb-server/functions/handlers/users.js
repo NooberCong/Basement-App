@@ -141,15 +141,6 @@ exports.getUserDetails = async (req, res) => {
             res.status(400).json({ message: 'User does not exist' });
         }
         userDetails.credentials = doc.data();
-        const flushData = await db.collection('flushes').where('user', '==', req.params.username)
-            .orderBy('created', 'desc')
-            .get();
-        userDetails.flushes = [];
-        flushData.forEach(doc => {
-            const flush = doc.data();
-            flush.flushID = doc.id;
-            userDetails.flushes.push(flush);
-        });
         res.json(userDetails);
     }
     catch (err) {

@@ -10,7 +10,15 @@ export const getAllFlushes = (flushDispatch) => {
 }
 
 export const getUserFlushes = (username, flushDispatch) => {
-    
+    if (!username) return;
+    axios.get(`/flushes?user=${username.replace(/\s/g, '%20')}`)
+    .then(response => {
+        flushDispatch({
+            type: 'SET_USER_FLUSHES',
+            payload: response.data
+        });
+    })
+    .catch(err => console.log(err));
 }
 
 export const likeFlush = (id, flushDispatch) => {
@@ -166,7 +174,7 @@ export const replyComment = (text, commentID, flushID, flushDispatch) => {
         .then(response => {
             flushDispatch({
                 type: 'REPLY_COMMENT',
-                payload: { commentID: response.data.commentID, flushID, reply: response.data }
+                payload: { commentID, flushID, reply: response.data }
             });
         })
         .catch(err => console.log(err));
@@ -224,4 +232,8 @@ export const updateReply = (replyID, commentID, flushID, updates, flushDispatch)
         });
     })
     .catch(err => console.log(err));
+}
+
+export const freeUserFlushes = (flushDispatch) => {
+    flushDispatch({type: 'FREE_USER_FLUSHES'});
 }

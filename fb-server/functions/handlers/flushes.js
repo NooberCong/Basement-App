@@ -315,7 +315,8 @@ exports.replyComment = async (req, res) => {
             created: new Date().toISOString()
         }
         await commentDoc.ref.update({ replyCount: commentDoc.data().replyCount + 1 });
-        await db.collection('replies').add(reply);
+        const replyDoc = await db.collection('replies').add(reply);
+        reply.replyID = replyDoc.id;
         return res.json(reply);
     }
     catch (err) {

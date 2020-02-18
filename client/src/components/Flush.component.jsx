@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime'
 import FlushEditor from '../components/FlushEditor.component';
@@ -125,7 +126,7 @@ const Flush = ({ data }) => {
         <Card className={classes.root}>
             <CardHeader
                 avatar={
-                    <Avatar src={data.imageUrl} className={classes.avatar} />
+                    <Link to={data.user === user.credentials.username? '/Profile': `users/${data.user}`}><Avatar src={data.imageUrl} className={classes.avatar} /></Link>
                 }
                 action={
                     data.user === user.credentials.username &&
@@ -174,9 +175,7 @@ const Flush = ({ data }) => {
                 subheader={dayjs(data.created).fromNow()}
             />
             <CardContent className={classes.content}>
-                <Typography style={{ fontSize: '16px' }} variant="body2" color="textPrimary" component="p">
-                    {data.text}
-                </Typography>
+                {data.text.split('<newLine>').map((line, index) => <Typography key={index} style={{ fontSize: '16px' }} variant="body2" color="textPrimary" component="p">{line}</Typography>)}
             </CardContent>
             {data.photoUrl &&
                 <CardMedia
@@ -199,7 +198,7 @@ const Flush = ({ data }) => {
                 <div className={classes.interactionBtn}>
                     <Tooltip title='Like' placement='top'>
                         <IconButton size='small' className={classes.likeBtn} onClick={() => handleLikeBtn(data.flushID)} aria-label="add to favorites">
-                            {data.likedByUser? (<FavoriteIcon style={{ color: '#fc5c65' }} />) : (<FavoriteBorderIcon className={classes.likeIcon} />)}
+                            {data.likedByUser ? (<FavoriteIcon style={{ color: '#fc5c65' }} />) : (<FavoriteBorderIcon className={classes.likeIcon} />)}
                         </IconButton>
                     </Tooltip>
                     <Typography variant='subtitle2' color='textSecondary'>{data.likeCount}</Typography>

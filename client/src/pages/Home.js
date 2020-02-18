@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Route } from 'react-router-dom';
 import { useUser } from '../context/userContext';
@@ -6,12 +6,14 @@ import { useFlush } from '../context/flushContext';
 
 //Actions
 import { updateUser, validateUser } from '../actions/userActions';
+import { getAllFlushes } from '../actions/flushActions';
 
 //Components
 import FlushSection from '../components/FlushSection.component';
 import Drawer from '../components/Drawer.component';
 import AppBar from '../components/AppBar.component';
 import Profile from '../components/Profile.component';
+import OtherProfile from '../components/OtherProfile.component'
 
 //Mui
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -39,18 +41,33 @@ const Home = () => {
     const [tab, setTab] = useState(0);
     const [user, userDispatch] = useUser();
     const [flushData, flushDispatch] = useFlush();
-    //Check for user validation
-    validateUser(userDispatch, flushDispatch, user, flushData, axios);
+    useEffect(() => {
+        validateUser(user, userDispatch, axios);
+    });
+
+    useEffect(() => {
+        const fetchData = () => {
+            if (user.authenticated) {
+                updateUser(userDispatch);
+                getAllFlushes(flushDispatch);
+            }
+            else setTimeout(fetchData, 500);
+        }
+        fetchData();
+    }, [flushDispatch, user.authenticated, userDispatch]);
 
     return (
         <div className={classes.root}>
             <CssBaseline />
             <AppBar tab={tab} toggleMobile={() => setMobile(!mobile)} />
-            <Drawer tab={tab}  setTab={setTab} mobile={mobile} toggleMobile={() => setMobile(!mobile)} />
+            <Drawer tab={tab} setTab={setTab} mobile={mobile} toggleMobile={() => setMobile(!mobile)} />
             <Grid container className={classes.content}>
                 <Grid item xs={12} sm={6}>
                     <Route path='/Profile'>
-                        <Profile setTab={setTab} user={user} updateUser={() => updateUser(userDispatch)} setUnauthenticated={() => userDispatch({ type: 'SET_UNAUTHENTICATED' })} />
+                        <Profile tab={tab} flushes={flushData.user} flushDispatch={flushDispatch} setTab={setTab} user={user} updateUser={() => updateUser(userDispatch)} setUnauthenticated={() => userDispatch({ type: 'SET_UNAUTHENTICATED' })} />
+                    </Route>
+                    <Route path='/users/:username'>
+                        <OtherProfile user={user} flushes={flushData.user} userDispatch={userDispatch} flushDispatch={flushDispatch} setTab={setTab} credentials={user.otherCredentials} />
                     </Route>
                     <Route exact path='/'>
                         <FlushSection setTab={setTab} flushDispatch={flushDispatch} data={flushData.all} user={user} />
@@ -58,7 +75,6 @@ const Home = () => {
                 </Grid>
                 <Grid item xs={12} sm={6}></Grid>
             </Grid>
-
         </div>
     )
 }

@@ -21,6 +21,9 @@ const useStyles = makeStyles(theme => ({
         minHeight: '12vh',
         marginBottom: theme.spacing(2),
         borderRadius: '0',
+        [theme.breakpoints.down('xs')]: {
+            minWidth: '80vw'
+        }
     },
     avatar: {
         alignSelf: 'flex-start',
@@ -82,10 +85,10 @@ const FlushEditor = ({ flush, flushDispatch, user, close }) => {
     const handleSubmit = () => {
         if (text || file) {
             if (isEmpty(flush)) {
-                postFlush(text, flushDispatch, file);
+                postFlush(text.replace(/\n/g, '<newLine>'), flushDispatch, file);
             }
             else {
-                updateFlush({ text, file }, flushDispatch, flush.flushID, flush.photoUrl);
+                updateFlush({ text: text.replace(/\n/g, '<newLine>'), file }, flushDispatch, flush.flushID, flush.photoUrl);
             }
             setText('');
             setFile(null);
@@ -104,7 +107,7 @@ const FlushEditor = ({ flush, flushDispatch, user, close }) => {
             <div className={classes.upper}>
                 <Avatar src={user.credentials.imageUrl} className={classes.avatar} />
                 <form style={{ width: '100%' }}>
-                    <TextareaAutosize value={text} onChange={(e) => setText(e.target.value)} placeholder="What's happening?..." className={classes.flushText} />
+                    <TextareaAutosize autoFocus value={text} onChange={(e) => setText(e.target.value)} placeholder="What's happening?..." className={classes.flushText} />
                 </form>
             </div>
             {file &&
