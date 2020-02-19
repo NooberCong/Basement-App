@@ -22,7 +22,7 @@ const useStyles = makeStyles(theme => ({
         marginBottom: theme.spacing(2),
         borderRadius: '0',
         [theme.breakpoints.down('xs')]: {
-            minWidth: '80vw'
+            minWidth: '80vw !important'
         }
     },
     avatar: {
@@ -74,7 +74,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const FlushEditor = ({ flush, flushDispatch, user, close }) => {
+const FlushEditor = ({ flush, flushDispatch, user, close, editBar }) => {
     const isEdit = !isEmpty(flush);
     //Hooks
     const classes = useStyles();
@@ -103,7 +103,7 @@ const FlushEditor = ({ flush, flushDispatch, user, close }) => {
     }
 
     return (
-        <Paper elevation={isEdit ? 0 : 1} className={classes.writeFlush}>
+        <Paper elevation={isEdit ? 0 : 1} style={{minWidth: editBar? '40vw': 'none'}} className={classes.writeFlush}>
             <div className={classes.upper}>
                 <Avatar src={user.credentials.imageUrl} className={classes.avatar} />
                 <form style={{ width: '100%' }}>

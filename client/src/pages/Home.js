@@ -14,6 +14,7 @@ import Drawer from '../components/Drawer.component';
 import AppBar from '../components/AppBar.component';
 import Profile from '../components/Profile.component';
 import OtherProfile from '../components/OtherProfile.component'
+import Notifications from '../components/NotifSection.component';
 
 //Mui
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -60,7 +61,7 @@ const Home = () => {
         <div className={classes.root}>
             <CssBaseline />
             <AppBar tab={tab} toggleMobile={() => setMobile(!mobile)} />
-            <Drawer tab={tab} setTab={setTab} mobile={mobile} toggleMobile={() => setMobile(!mobile)} />
+            <Drawer unread={user.notifications.length} tab={tab} setTab={setTab} mobile={mobile} toggleMobile={() => setMobile(!mobile)} />
             <Grid container className={classes.content}>
                 <Grid item xs={12} sm={6}>
                     <Route path='/Profile'>
@@ -68,6 +69,9 @@ const Home = () => {
                     </Route>
                     <Route path='/users/:username'>
                         <OtherProfile user={user} flushes={flushData.user} userDispatch={userDispatch} flushDispatch={flushDispatch} setTab={setTab} credentials={user.otherCredentials} />
+                    </Route>
+                    <Route path='/notifications'>
+                        <Notifications setTab={setTab} data={user.notifications} />
                     </Route>
                     <Route exact path='/'>
                         <FlushSection setTab={setTab} flushDispatch={flushDispatch} data={flushData.all} user={user} />

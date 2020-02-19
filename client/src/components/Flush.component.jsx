@@ -166,7 +166,7 @@ const Flush = ({ data }) => {
                                         </Button>
                                     </DialogActions>
                                 </> : diagOpen === 'Edit' ?
-                                    <FlushEditor flush={data} flushDispatch={flushDispatch} user={user} close={handleDiagClose} /> : <></>
+                                    <FlushEditor flush={data} flushDispatch={flushDispatch} user={user} editBar={true} close={handleDiagClose} /> : <></>
                             }
                         </Dialog>
                     </>

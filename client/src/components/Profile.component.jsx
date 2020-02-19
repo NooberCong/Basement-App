@@ -34,7 +34,7 @@ import { useState } from 'react';
 
 const useStyles = makeStyles(theme => ({
     container: {
-        padding: '3vh 1vw',
+        paddingTop: '3vh',
         width: '100%',
         position: 'relative',
         textAlign: 'center',
@@ -92,6 +92,9 @@ const useStyles = makeStyles(theme => ({
         [theme.breakpoints.up("sm")]: {
             width: '70%'
         }
+    },
+    details: {
+        padding: '1vh'
     },
     toolbarBtn: {
         backgroundColor: '#ecf0f1',
@@ -266,7 +269,7 @@ const Profile = ({ user, updateUser, setUnauthenticated, setTab, flushDispatch, 
                         </Menu>
                     </div>
                 </Toolbar>
-                <div className="details">
+                <div className={classes.details}>
                     <Typography>{user.credentials.bio}</Typography>
                     <Typography>
                         <RoomIcon className={classes.icon} color='secondary' />

@@ -39,7 +39,8 @@ const { triggerLikeNotif,
     triggerUserImageChange,
     triggerDelNotif,
     triggerFlushDelete,
-    triggerCommentDelete } = require('./utils/triggerers');
+    triggerCommentDelete,
+    triggerReplyNotif } = require('./utils/triggerers');
 
 //Routes
 app.get('/flushes', dbauth, getAllFlushes);
@@ -73,9 +74,11 @@ app.post('/notifications', dbauth, markNotifAsRead);
 exports.api = functions.region('asia-east2').https.onRequest(app);
 
 //Function triggerers
-exports.OnLike = functions.region('asia-east2').firestore.document('likes/{id}').onCreate(triggerLikeNotif);
-exports.OnComment = functions.region('asia-east2').firestore.document('comments/{id}').onCreate(triggerCommentNotif);
-exports.OnUnlike = functions.region('asia-east2').firestore.document('likes/{id}').onDelete(triggerDelNotif);
+exports.onLike = functions.region('asia-east2').firestore.document('likes/{id}').onCreate(triggerLikeNotif);
+exports.onComment = functions.region('asia-east2').firestore.document('comments/{id}').onCreate(triggerCommentNotif);
+exports.onUnlike = functions.region('asia-east2').firestore.document('likes/{id}').onDelete(triggerDelNotif);
 exports.onUserImageChange = functions.region('asia-east2').firestore.document('users/{id}').onUpdate(triggerUserImageChange);
 exports.onFlushDelete = functions.region('asia-east2').firestore.document('flushes/{id}').onDelete(triggerFlushDelete);
 exports.onCommentDelete = functions.region('asia-east2').firestore.document('comments/{id}').onDelete(triggerCommentDelete);
+exports.onReply = functions.region('asia-east2').firestore.document('replies/{id}').onCreate(triggerReplyNotif);
+exports.onReplyDelete = functions.region('asia-east2').firestore.document('replies/{id}').onDelete(triggerDelNotif);

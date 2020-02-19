@@ -3,28 +3,46 @@ const { db } = require('./admin');
 exports.triggerLikeNotif = async (snapshot) => {
     try {
         let notif;
-        if (snapshot.commentID) {
-            const doc = db.doc(`/comments/${snapshot.commentID}`).get();
-            if (!doc.exists || doc.data().user === snapshot.data().username) return;
+        if (snapshot.data().type === 'replyLike') {
+            const replyDoc = await db.doc(`/replies/${snapshot.data().replyID}`).get();
+            const commentDoc = await db.doc(`/comments/${replyDoc.data().commentID}`).get();
+            if (!replyDoc.exists || replyDoc.data().username === snapshot.data().username) return;
             notif = {
                 from: snapshot.data().username,
-                to: doc.data().user,
+                to: replyDoc.data().username,
+                read: false,
+                type: 'reply like',
+                flushID: commentDoc.data().flushID,
+                imageUrl: snapshot.data().imageUrl,
+                commentID: commentDoc.id,
+                replyID: replyDoc.id,
+                created: new Date().toISOString()
+            }
+        }
+        else if (snapshot.data().type === 'commentLike'){
+            const commentDoc = await db.doc(`/comments/${snapshot.data().commentID}`).get();
+            if (!commentDoc.exists || commentDoc.data().username === snapshot.data().username) return;
+            notif = {
+                from: snapshot.data().username,
+                to: commentDoc.data().username,
                 read: false,
                 type: 'comment like',
-                flushID: doc.id,
-                commentID: snapshot.commentID,
+                imageUrl: snapshot.data().imageUrl,
+                flushID: commentDoc.data().flushID,
+                commentID: commentDoc.id,
                 created: new Date().toISOString()
             }
         }
         else {
-            const doc = await db.doc(`/flushes/${snapshot.data().flushID}`).get();
-            if (!doc.exists || doc.data().user === snapshot.data().username) return;
+            const flushDoc = await db.doc(`/flushes/${snapshot.data().flushID}`).get();
+            if (!flushDoc.exists || snapshot.data().username === flushDoc.data().user) return;
             notif = {
                 from: snapshot.data().username,
-                to: doc.data().user,
+                to: flushDoc.data().user,
                 read: false,
                 type: 'flush like',
-                flushID: doc.id,
+                imageUrl: snapshot.data().imageUrl,
+                flushID: flushDoc.id,
                 created: new Date().toISOString()
             }
         }
@@ -39,14 +57,16 @@ exports.triggerLikeNotif = async (snapshot) => {
 
 exports.triggerCommentNotif = async (snapshot) => {
     try {
-        const doc = await db.doc(`/flushes/${snapshot.data().flushID}`).get();
-        if (!doc.exists || doc.data().user === snapshot.data().username) return;
+        const flushDoc = await db.doc(`/flushes/${snapshot.data().flushID}`).get();
+        if (!flushDoc.exists || flushDoc.data().user === snapshot.data().username) return;
         const notif = {
             from: snapshot.data().username,
-            to: doc.data().user,
+            to: flushDoc.data().user,
             read: false,
             type: 'comment',
-            flushID: doc.id,
+            flushID: flushDoc.id,
+            imageUrl: snapshot.data().imageUrl,
+            commentID: snapshot.id,
             created: new Date().toISOString()
         }
         await db.doc(`/notifications/${snapshot.id}`).set(notif);
@@ -118,4 +138,21 @@ exports.triggerCommentDelete = async (snapshot) => {
     catch (err) {
         return console.error(err);
     }
+}
+
+exports.triggerReplyNotif =  async (snapshot) => {
+    const commentDoc = await db.doc(`/comments/${snapshot.data().commentID}`).get();
+    if (!commentDoc.exists || commentDoc.data().username === snapshot.data().username) return;
+    const notif = {
+        from: snapshot.data().username,
+        to: commentDoc.data().username,
+        type: 'reply',
+        read: false,
+        replyID: snapshot.id,
+        imageUrl: snapshot.data().imageUrl,
+        commentID: commentDoc.id,
+        created: new Date().toISOString()
+    }
+    await db.doc(`/notifications/${snapshot.id}`).set(notif);
+    return;
 }

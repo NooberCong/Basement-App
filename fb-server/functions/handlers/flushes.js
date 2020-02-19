@@ -131,7 +131,7 @@ exports.likeFlush = async (req, res) => {
         if (!likeData.empty) return res.status(400).json({ message: `User ${req.user.username} already liked this flush` });
         flushData = flushDoc.data();
         flushData.flushID = req.params.flushID;
-        await db.collection('likes').add({ flushID: req.params.flushID, username: req.user.username, type: 'flushLike' });
+        await db.collection('likes').add({ flushID: req.params.flushID, imageUrl: req.user.imageUrl, username: req.user.username, type: 'flushLike' });
         flushData.likeCount++;
         await db.doc(`/flushes/${req.params.flushID}`).update({ likeCount: flushData.likeCount });
         return res.json(flushData);
@@ -269,6 +269,7 @@ exports.likeComment = async (req, res) => {
             flushID: commentDoc.data().flushID,
             username: req.user.username,
             commentID: commentDoc.id,
+            imageUrl: req.user.imageUrl,
             type: 'commentLike'
         });
         const comment = commentDoc.data();
@@ -357,6 +358,7 @@ exports.likeReply = async (req, res) => {
         commentID: req.params.commentID,
         username: req.user.username,
         replyID: req.params.replyID,
+        imageUrl: req.user.imageUrl,
         type: 'replyLike'
     });
     const reply = replyDoc.data();

@@ -24,7 +24,7 @@ import ChatIcon from '@material-ui/icons/Chat';
 
 const useStyles = makeStyles(theme => ({
     container: {
-        padding: '3vh 1vw',
+        paddingTop: '3vh',
         width: '100%',
         position: 'relative',
         textAlign: 'center',
@@ -55,6 +55,7 @@ const useStyles = makeStyles(theme => ({
     },
     toolbar: {
         width: '100%',
+        marginTop: theme.spacing(2),
         margin: 'auto',
         display: 'flex',
         justifyContent: 'space-around',
@@ -62,6 +63,9 @@ const useStyles = makeStyles(theme => ({
         [theme.breakpoints.up("sm")]: {
             width: '70%'
         }
+    },
+    details: {
+        padding: '1vh'
     },
     toolbarBtn: {
         backgroundColor: '#ecf0f1',
@@ -153,7 +157,7 @@ const OtherProfile = ({ user, credentials, userDispatch, flushDispatch, flushes,
                         </Menu>
                     </div>
                 </Toolbar>
-                <div className="details">
+                <div className={classes.details}>
                     <Typography>{credentials.bio}</Typography>
                     <Typography>
                         <RoomIcon className={classes.icon} color='secondary' />
