@@ -1,4 +1,4 @@
-const { db } = require('./admin');
+const { admin, db } = require('./admin');
 
 exports.triggerLikeNotif = async (snapshot) => {
     try {
@@ -92,9 +92,26 @@ exports.triggerDelNotif = async (snapshot) => {
 exports.triggerUserImageChange = async (change) => {
     try {
         if (change.before.data().imageUrl !== change.after.data().imageUrl) {
-            const batch = db.batch();
+            await admin.storage().bucket().file(change.before.data().imageUrl.slice(77, 87)).delete();
+            const batch = db.batch();            
             const flushData = await db.collection('flushes').where('user', '==', change.before.data().username).get();
+            const commentData = await db.collection('comments').where('username', '==', change.before.data().username).get();
+            const replyData = await db.collection('replies').where('username', '==', change.before.data().username).get();
+            const likeData = await db.collection('likes').where('username', '==', change.before.data().username).get();
+            const notifData = await db.collection('notifications').where('from', '==', change.before.data().username).get();
             flushData.forEach(doc => {
+                batch.update(doc.ref, { imageUrl: change.after.data().imageUrl });
+            });
+            commentData.forEach(doc => {
+                batch.update(doc.ref, { imageUrl: change.after.data().imageUrl });
+            });
+            replyData.forEach(doc => {
+                batch.update(doc.ref, { imageUrl: change.after.data().imageUrl });
+            });
+            likeData.forEach(doc => {
+                batch.update(doc.ref, { imageUrl: change.after.data().imageUrl });
+            });
+            notifData.forEach(doc => {
                 batch.update(doc.ref, { imageUrl: change.after.data().imageUrl });
             });
             return await batch.commit();
@@ -109,6 +126,7 @@ exports.triggerUserImageChange = async (change) => {
 exports.triggerFlushDelete = async (snapshot) => {
     try {
         const flushID = snapshot.id;
+        if (snapshot.data().photoUrl) await admin.storage().bucket().file(snapshot.data().photoUrl.slice(77, 87)).delete();
         const commentData = await db.collection('comments').where('flushID', '==', flushID).get();
         const likeData = await db.collection('likes').where('flushID', '==', flushID).get();
         const notifData = await db.collection('notifications').where('flushID', '==', flushID).get();
@@ -151,6 +169,7 @@ exports.triggerReplyNotif =  async (snapshot) => {
         replyID: snapshot.id,
         imageUrl: snapshot.data().imageUrl,
         commentID: commentDoc.id,
+        flushID: commentDoc.data().flushID,
         created: new Date().toISOString()
     }
     await db.doc(`/notifications/${snapshot.id}`).set(notif);

@@ -22,7 +22,10 @@ const reducer = (state, action) => {
                     : flush),
                 user: state.user.map(flush => flush.flushID === action.payload.flushID
                     ? { ...flush, likeCount: action.payload.likeCount, likedByUser: true }
-                    : flush)
+                    : flush),
+                specific: state.specific.flushID === action.payload.flushID
+                    ? { ...state.specific, likeCount: action.payload.likeCount, likedByUser: true }
+                    : state.specific
             }
         case 'UNLIKE_FLUSH':
             return {
@@ -32,25 +35,29 @@ const reducer = (state, action) => {
                     : flush),
                 user: state.user.map(flush => flush.flushID === action.payload.flushID
                     ? { ...flush, likeCount: action.payload.likeCount, likedByUser: false }
-                    : flush)
+                    : flush),
+                specific: state.specific.flushID === action.payload.flushID
+                    ? { ...state.specific, likeCount: action.payload.likeCount, likedByUser: false }
+                    : state.specific
             }
         case 'DELETE_FLUSH':
             return {
                 ...state,
                 all: state.all.filter(flush => flush.flushID !== action.payload),
-                user: state.user.filter(flush => flush.flushID !== action.payload)
+                user: state.user.filter(flush => flush.flushID !== action.payload),
+                specific: state.specific.flushID === action.payload ? {} : state.specific
             }
         case 'POST_FLUSH':
             return {
                 ...state,
-                all: [{ ...action.payload, comments: [] }, ...state.all],
-                user: [{ ...action.payload, comments: [] }, ...state.user]
+                all: [{ ...action.payload, comments: [] }, ...state.all]
             }
         case 'UPDATE_FLUSH':
             return {
                 ...state,
                 all: state.all.map(flush => flush.flushID === action.payload.flushID ? { ...flush, ...action.payload.updates } : flush),
-                user: state.user.map(flush => flush.flushID === action.payload.flushID ? { ...flush, ...action.payload.updates } : flush)
+                user: state.user.map(flush => flush.flushID === action.payload.flushID ? { ...flush, ...action.payload.updates } : flush),
+                specific: state.specific.flushID === action.payload.flushID ? { ...state.specific, ...action.payload.updates } : state.specific
             }
         case 'POST_COMMENT':
             return {
@@ -60,7 +67,10 @@ const reducer = (state, action) => {
                     : flush),
                 user: state.user.map(flush => flush.flushID === action.payload.flushID
                     ? { ...flush, comments: [...(flush.comments || []), { ...action.payload.comment, replyCount: 0, likeCount: 0, replies: [] }], commentCount: flush.commentCount + 1 }
-                    : flush)
+                    : flush),
+                specific: state.specific.flushID === action.payload.flushID
+                    ? { ...state.specific, comments: [...state.specific.comments, { ...action.payload.comment, replyCount: 0, likeCount: 0, replies: [] }], commentCount: state.specific.commentCount + 1 }
+                    : state.specific
             }
         case 'DELETE_COMMENT':
             return {
@@ -70,7 +80,10 @@ const reducer = (state, action) => {
                     : flush),
                 user: state.user.map(flush => flush.flushID === action.payload.flushID
                     ? { ...flush, comments: flush.comments.filter(comment => comment.commentID !== action.payload.commentID), commentCount: flush.commentCount - 1 }
-                    : flush)
+                    : flush),
+                specific: state.specific.flushID === action.payload.flushID
+                    ? { ...state.specific, comments: state.specific.comments.filter(comment => comment.commentID !== action.payload.commentID), commentCount: state.specific.commentCount - 1 }
+                    : state.specific
             }
         case 'UPDATE_COMMENT':
             return {
@@ -88,7 +101,14 @@ const reducer = (state, action) => {
                             ? { ...comment, ...action.payload.comment }
                             : comment)
                     }
-                    : flush)
+                    : flush),
+                specific: state.specific.flushID === action.payload.flushID
+                    ? {
+                        ...state.specific, comments: state.specific.comments.map(comment => comment.commentID === action.payload.commentID
+                            ? { ...comment, ...action.payload.comment }
+                            : comment)
+                    }
+                    : state.specific
             }
         case 'LIKE_COMMENT':
             return {
@@ -106,7 +126,14 @@ const reducer = (state, action) => {
                             ? { ...comment, ...action.payload, likedByUser: true }
                             : comment)
                     }
-                    : flush)
+                    : flush),
+                specific: state.specific.flushID === action.payload.flushID
+                    ? {
+                        ...state.specific, comments: state.specific.comments.map(comment => comment.commentID === action.payload.commentID
+                            ? { ...comment, ...action.payload, likedByUser: true }
+                            : comment)
+                    }
+                    : state.specific
             }
         case 'UNLIKE_COMMENT':
             return {
@@ -124,7 +151,14 @@ const reducer = (state, action) => {
                             ? { ...comment, ...action.payload, likedByUser: false }
                             : comment)
                     }
-                    : flush)
+                    : flush),
+                specific: state.specific.flushID === action.payload.flushID
+                    ? {
+                        ...state.specific, comments: state.specific.comments.map(comment => comment.commentID === action.payload.commentID
+                            ? { ...comment, ...action.payload, likedByUser: false }
+                            : comment)
+                    }
+                    : state.specific
             }
         case 'REPLY_COMMENT':
             return {
@@ -142,7 +176,14 @@ const reducer = (state, action) => {
                             ? { ...comment, replyCount: comment.replyCount + 1, replies: [...comment.replies, action.payload.reply] }
                             : comment)
                     }
-                    : flush)
+                    : flush),
+                specific: state.specific.flushID === action.payload.flushID
+                    ? {
+                        ...state.specific, comments: state.specific.comments.map(comment => comment.commentID === action.payload.commentID
+                            ? { ...comment, replyCount: comment.replyCount + 1, replies: [...comment.replies, action.payload.reply] }
+                            : comment)
+                    }
+                    : state.specific
             }
         case 'SET_REPLIES':
             return {
@@ -160,7 +201,14 @@ const reducer = (state, action) => {
                             ? { ...comment, replies: action.payload.replies }
                             : comment)
                     }
-                    : flush)
+                    : flush),
+                specific: state.specific.flushID === action.payload.flushID
+                    ? {
+                        ...state.specific, comments: state.specific.comments.map(comment => comment.commentID === action.payload.commentID
+                            ? { ...comment, replies: [...(state.specific.replies||[]), ...action.payload.replies.filter(reply => !(state.specific.replies||[]).map(reply => reply.replyID).includes(reply.replyID))] }
+                            : comment)
+                    }
+                    : state.specific
             }
         case 'LIKE_REPLY':
             return {
@@ -186,7 +234,18 @@ const reducer = (state, action) => {
                             }
                             : comment)
                     }
-                    : flush)
+                    : flush),
+                specific: state.specific.flushID === action.payload.flushID
+                    ? {
+                        ...state.specific, comments: state.specific.comments.map(comment => comment.commentID === action.payload.reply.commentID
+                            ? {
+                                ...comment, replies: comment.replies.map(reply => reply.replyID === action.payload.reply.replyID
+                                    ? { ...action.payload.reply, likedByUser: true }
+                                    : reply)
+                            }
+                            : comment)
+                    }
+                    : state.specific
             }
         case 'UNLIKE_REPLY':
             return {
@@ -212,7 +271,18 @@ const reducer = (state, action) => {
                             }
                             : comment)
                     }
-                    : flush)
+                    : flush),
+                specific: state.specific.flushID === action.payload.flushID
+                    ? {
+                        ...state.specific, comments: state.specific.comments.map(comment => comment.commentID === action.payload.reply.commentID
+                            ? {
+                                ...comment, replies: comment.replies.map(reply => reply.replyID === action.payload.reply.replyID
+                                    ? { ...action.payload.reply, likedByUser: false }
+                                    : reply)
+                            }
+                            : comment)
+                    }
+                    : state.specific
             }
         case 'DELETE_REPLY':
             return {
@@ -230,7 +300,14 @@ const reducer = (state, action) => {
                             ? { ...comment, replyCount: comment.replyCount - 1, replies: comment.replies.filter(reply => reply.replyID !== action.payload.replyID) }
                             : comment)
                     }
-                    : flush)
+                    : flush),
+                specific: state.specific.flushID === action.payload.flushID
+                    ? {
+                        ...state.specific, comments: state.specific.comments.map(comment => comment.commentID === action.payload.commentID
+                            ? { ...comment, replyCount: comment.replyCount - 1, replies: comment.replies.filter(reply => reply.replyID !== action.payload.replyID) }
+                            : comment)
+                    }
+                    : state.specific
             }
         case 'UPDATE_REPLY':
             return {
@@ -256,7 +333,18 @@ const reducer = (state, action) => {
                             }
                             : comment)
                     }
-                    : flush)
+                    : flush),
+                specific: state.specific.flushID === action.payload.flushID
+                    ? {
+                        ...state.specific, comments: state.specific.comments.map(comment => comment.commentID === action.payload.reply.commentID
+                            ? {
+                                ...comment, replies: comment.replies.map(reply => reply.replyID === action.payload.replyID
+                                    ? { ...reply, ...action.payload.reply }
+                                    : reply)
+                            }
+                            : comment)
+                    }
+                    : state.specific
             }
         case 'SET_USER_FLUSHES':
             return {
@@ -267,6 +355,17 @@ const reducer = (state, action) => {
             return {
                 ...state,
                 user: []
+            }
+        case 'SET_FLUSH':
+            return {
+                ...state,
+                all: state.all.map(flush => flush.flushID === action.payload.flushID ? action.payload : flush),
+                specific: action.payload
+            }
+        case 'FREE_SPECIFIC_FLUSH': 
+            return {
+                ...state,
+                specific: {}
             }
         default: return state;
     }

@@ -7,7 +7,7 @@ exports.getAllFlushes = async (req, res) => {
         let data = await db.collection('flushes');
         if (req.query.user) data = data.where('user', '==', req.query.user);
         data = data.orderBy('created', 'desc');
-        if(req.query.from) {
+        if (req.query.from) {
             const lastDoc = await db.doc(`/flushes/${req.query.from}`).get();
             data = data.startAfter(lastDoc);
         }
@@ -77,15 +77,39 @@ exports.getFlush = async (req, res) => {
         }
         flush = doc.data();
         flush.flushID = doc.id;
+        const flushLikeData = await db.collection('likes').where('type', '==', 'flushLike').where('flushID', '==', flush.flushID).limit(1).get();
+        if (!flushLikeData.empty) flush.likedByUser = true;
         const commentData = await db.collection('comments')
             .orderBy('created', 'asc')
             .where('flushID', '==', flush.flushID)
             .get();
-        flush.comments = [];
+        if (req.query.commentID) {
+            const commentDoc = await db.doc(`/comments/${req.query.commentID}`).get();
+            const commentLikeData = await db.collection('likes').where('username', '==', req.user.username).where('flushID', '==', flush.flushID).where('commentID', '==', commentDoc.id).limit(1).get();
+            const comment = commentDoc.data();
+            comment.commentID = commentDoc.id;
+            comment.likedByUser = !commentLikeData.empty;
+            if (req.query.replyID) {
+                const replyDoc = await db.doc(`/replies/${req.query.replyID}`).get();
+                const replyLikeData = await db.collection('likes').where('type', '==', 'replyLike').where('commentID', '==', comment.commentID).where('replyID', '==', replyDoc.id).where('username', '==', req.user.username).limit(1).get();
+                const reply = replyDoc.data();
+                reply.replyID = replyDoc.id;
+                reply.likedByUser = !replyLikeData.empty;
+                comment.replies = [reply];
+            }
+            else comment.replies = [];
+            flush.comments = [comment]
+        }
+        else {
+            flush.comments = [];
+        }
         commentData.forEach(doc => {
-            let comment = doc.data();
-            comment.commentID = doc.id;
-            flush.comments.push(comment);
+            if (doc.id !== req.query.commentID) {
+                let comment = doc.data();
+                comment.commentID = doc.id;
+                comment.replies = [];
+                flush.comments.push(comment);
+            }
         });
         return res.json(flush);
     }
@@ -387,7 +411,7 @@ exports.deleteReply = async (req, res) => {
         if (replyDoc.data().username !== req.user.username) return res.status(403).json({ message: 'Unauthorized' });
         await replyDoc.ref.delete();
         const commentDoc = await db.doc(`/comments/${replyDoc.data().commentID}`).get();
-        if (commentDoc.exists) await commentDoc.ref.update( {replyCount: commentDoc.data().replyCount - 1 });
+        if (commentDoc.exists) await commentDoc.ref.update({ replyCount: commentDoc.data().replyCount - 1 });
         return res.json({ message: 'Reply deleted' });
     }
     catch (err) {
@@ -411,3 +435,4 @@ exports.updateReply = async (req, res) => {
         res.status(500).json({ message: 'Could not update reply' });
     }
 }
+

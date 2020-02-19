@@ -34,3 +34,12 @@ export const getOtherUserDetails = (username, userDispatch) => {
 export const freeOtherUserDetails = (userDispatch) => {
     userDispatch({ type: 'FREE_OTHER_USER' });
 }
+
+export const markAsRead = (ids, userDispatch) => {
+    console.log('Marking notif as read');
+    axios.post('/notifications', ids)
+    .then(() => {
+        userDispatch({ type: 'MARK_NOTIF_READ' });
+    })
+    .catch(err => console.log(err));
+}

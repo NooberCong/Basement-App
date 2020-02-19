@@ -38,6 +38,11 @@ const reducer = (state, action) => {
                 ...state,
                 otherCredentials: {}
             }
+        case 'MARK_NOTIF_READ':
+            return {
+                ...state,
+                notifications: state.notifications.map(notif => !notif.read? {...notif, read: true}: notif)
+            }
         default: throw Error('Action not recognized');
     }
 }

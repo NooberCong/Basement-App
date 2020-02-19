@@ -61,20 +61,8 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const getPath = (s) => {
-    switch (s) {
-        case 'Home': return '/';
-        case 'Notifications': return '/notifications';
-        case 'Messages': return '/messages';
-        case 'Profile': return '/profile';
-        case 'Liked': return '/favorites';
-        case 'Top Flushes': return '/trending';
-        default: return '/'
 
-    }
-}
-
-const AppDrawer = ({ unread, tab, setTab, mobile, toggleMobile }) => {
+const AppDrawer = ({ unread, tab, mobile, toggleMobile }) => {
     const classes = useStyles();
     const drawer = (
         <div>
@@ -85,44 +73,50 @@ const AppDrawer = ({ unread, tab, setTab, mobile, toggleMobile }) => {
             </div>
             <Divider />
             <List disablePadding>
-                <ListItem onClick={() => setTab(0)} selected={tab === 'Home'} button component={Link} to={'/'}>
+                <ListItem selected={tab === 'Home'} button component={Link} to={'/'}>
                     <ListItemIcon>
                         <HomeIcon />
                     </ListItemIcon>
                     <ListItemText primary={'Home'} />
                 </ListItem>
-                <ListItem onClick={() => setTab(1)} selected={tab === 'Notifications'} button component={Link} to={'/notifications'}>
+                <ListItem selected={tab === 'Notifications'} button component={Link} to={'/notifications'}>
                     <ListItemIcon>
                         <div className={classes.notifIconContainer}>
-                        <NotificationsIcon />
-                        {unread > 0 &&
-                            <div className={classes.unreadNotif}>
-                                {unread}
-                            </div>
-                        }
+                            <NotificationsIcon />
+                            {unread > 0 &&
+                                <div className={classes.unreadNotif}>
+                                    {unread}
+                                </div>
+                            }
                         </div>
                     </ListItemIcon>
-                    <ListItemText primary={'Notifications'} />
+                    <ListItemText primary='Notifications' />
                 </ListItem>
-                <ListItem onClick={() => setTab(2)} selected={tab === 2} button component={Link} to={'/messages'}>
+                <ListItem selected={tab === 'Messages'} button component={Link} to={'/messages'}>
                     <ListItemIcon><ChatIcon /></ListItemIcon>
-                    <ListItemText primary={'Messages'} />
+                    <ListItemText primary='Messages' />
                 </ListItem>
-                <ListItem onClick={() => setTab('Profile')} selected={tab === 'Profile'} button component={Link} to={'/profile'}>
+                <ListItem selected={tab === 'Profile'} button component={Link} to={'/profile'}>
                     <ListItemIcon>
                         <AccountCircleRoundedIcon />
                     </ListItemIcon>
-                    <ListItemText primary={'Profile'} />
+                    <ListItemText primary='Profile' />
                 </ListItem>
             </List>
             <Divider />
             <List disablePadding>
-                {['Liked', 'Top Flushes', 'More'].map((text, index) => (
-                    <ListItem onClick={() => setTab(index + 4)} selected={tab === index + 4} button key={text} component={Link} to={getPath(text)}>
-                        <ListItemIcon>{[<FavoriteIcon />, <TrendingUpIcon />, <MoreHorizRoundedIcon />][index]}</ListItemIcon>
-                        <ListItemText primary={text} />
-                    </ListItem>
-                ))}
+                <ListItem selected={tab === 'Liked'} button component={Link} to={'/likes'}>
+                    <ListItemIcon><FavoriteIcon /></ListItemIcon>
+                    <ListItemText primary='Liked' />
+                </ListItem>
+                <ListItem selected={tab === 'Trending'} button component={Link} to={'/trending'}>
+                    <ListItemIcon><TrendingUpIcon /></ListItemIcon>
+                    <ListItemText primary='Trending' />
+                </ListItem>
+                <ListItem selected={tab === 'More'} button component={Link} to={'/more'}>
+                    <ListItemIcon><MoreHorizRoundedIcon /></ListItemIcon>
+                    <ListItemText primary='More' />
+                </ListItem>
             </List>
         </div>
     );

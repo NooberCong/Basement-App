@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import dayjs from 'dayjs';
+import queryString from 'query-string';
+import { useHistory } from 'react-router-dom';
+
 
 //Mui
 import { makeStyles } from '@material-ui/core/styles';
@@ -17,14 +20,19 @@ const useStyles = makeStyles(theme => ({
         width: '100%',
         padding: '16px 16px',
         display: 'flex',
-        alignItems: 'flex-start',
+        alignItems: 'flex-start'
     },
     avatar: {
         height: 52,
         width: 52
     },
+    flushLink: {
+        flexGrow: 1
+    },
     content: {
-        margin: '0 8px'
+        width: '100%',
+        margin: '0 8px',
+        color: '#000'
     },
     avatarContainer: {
         position: 'relative'
@@ -44,7 +52,9 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const Notification = ({ notif }) => {
+const Notification = ({ notif, flushDispatch }) => {
+    //Hooks
+    const history = useHistory();
 
     //Helper functions
     const handleNotifMessage = (type) => {
@@ -66,7 +76,12 @@ const Notification = ({ notif }) => {
             return 'replied to your comment'
         }
     }
-
+    const goToFlush = () => {
+        const query = {};
+        if (notif.commentID) query.commentID = notif.commentID;
+        if (notif.replyID) query.replyID = notif.replyID;
+        history.push(`/flushes/${notif.flushID}${Object.keys(query).length > 0 ? `?${queryString.stringify(query)}`: ''}`);
+    }
     //Hooks
     const classes = useStyles();
     const [anchorEl, setAnchor] = useState(null);
@@ -75,9 +90,9 @@ const Notification = ({ notif }) => {
         <div className={classes.main}>
             <div className={classes.avatarContainer}>
                 <Avatar src={notif.imageUrl} className={classes.avatar} />
-                {notif.type.match(/like/)? <FavoriteIcon className={classes.typeIcon} style={{color: '#fc5c65'}} /> : <ChatBubbleIcon className={classes.typeIcon} color='primary' />}
+                {notif.type.match(/like/) ? <FavoriteIcon className={classes.typeIcon} style={{ color: '#fc5c65' }} /> : <ChatBubbleIcon className={classes.typeIcon} color='primary' />}
             </div>
-            <div className={classes.content}>
+            <div onClick={goToFlush} className={classes.content}>
                 <Typography className={classes.name} component='span'>{notif.from}</Typography>
                 <Typography className={classes.action} component='span'>
                     {' '}{handleNotifMessage(notif.type)}

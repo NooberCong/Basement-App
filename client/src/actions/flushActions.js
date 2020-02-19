@@ -237,3 +237,23 @@ export const updateReply = (replyID, commentID, flushID, updates, flushDispatch)
 export const freeUserFlushes = (flushDispatch) => {
     flushDispatch({type: 'FREE_USER_FLUSHES'});
 }
+
+export const getSpecificFlush = (flushDispatch, flushID, commentID, replyID) => {
+    let requestUrl = `/flushes/${flushID}`;
+    if (commentID) requestUrl = `${requestUrl}?commentID=${commentID}`;
+    if (replyID) requestUrl = `${requestUrl}&replyID=${replyID}`;
+    axios.get(requestUrl)
+    .then(response => {
+        flushDispatch({
+            type: 'SET_FLUSH',
+            payload: response.data
+        });
+    })
+    .catch(err => console.log(err));
+}
+
+export const freeSpecificFlush = (flushDispatch) => {
+    flushDispatch({
+        type: 'FREE_SPECIFIC_FLUSH'
+    });
+}

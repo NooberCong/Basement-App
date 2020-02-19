@@ -91,7 +91,7 @@ const CommentSection = ({ data, flushDispatch, open, close, user, flushID }) => 
                 {subject}
             </DialogTitle>
             <DialogContent className={classes.main}>
-                {data.map((comment, i) => <Comment specific={!replyTo || replyTo === comment.commentID} viewReplies={() => handleViewReplies(comment)} replyToReply={(reply) => handleReplyReply(comment, reply)} replyToComment={() => handleCommentReply(comment)} flushDispatch={flushDispatch} flushID={flushID} key={`${comment.flushID}cmt${i}`} data={comment} />)}
+                {data.map((comment, i) => <Comment user={user} specific={!replyTo || replyTo === comment.commentID} viewReplies={() => handleViewReplies(comment)} replyToReply={(reply) => handleReplyReply(comment, reply)} replyToComment={() => handleCommentReply(comment)} flushDispatch={flushDispatch} flushID={flushID} key={`${comment.flushID}cmt${i}`} data={comment} />)}
             </DialogContent>
             <DialogActions className={classes.actionBar}>
                 <Tooltip title='Insert Emoji' placement='top'>

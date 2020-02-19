@@ -15,6 +15,9 @@ import AppBar from '../components/AppBar.component';
 import Profile from '../components/Profile.component';
 import OtherProfile from '../components/OtherProfile.component'
 import Notifications from '../components/NotifSection.component';
+import SpecificFlush from '../components/SpecificFlush.component';
+import Footer from '../components/Footer.component';
+import Development from '../components/Development.component';
 
 //Mui
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -61,7 +64,7 @@ const Home = () => {
         <div className={classes.root}>
             <CssBaseline />
             <AppBar tab={tab} toggleMobile={() => setMobile(!mobile)} />
-            <Drawer unread={user.notifications.length} tab={tab} setTab={setTab} mobile={mobile} toggleMobile={() => setMobile(!mobile)} />
+            <Drawer unread={user.notifications.filter(notif => !notif.read).length} tab={tab} setTab={setTab} mobile={mobile} toggleMobile={() => setMobile(!mobile)} />
             <Grid container className={classes.content}>
                 <Grid item xs={12} sm={6}>
                     <Route path='/Profile'>
@@ -71,13 +74,30 @@ const Home = () => {
                         <OtherProfile user={user} flushes={flushData.user} userDispatch={userDispatch} flushDispatch={flushDispatch} setTab={setTab} credentials={user.otherCredentials} />
                     </Route>
                     <Route path='/notifications'>
-                        <Notifications setTab={setTab} data={user.notifications} />
+                        <Notifications flushDispatch={flushDispatch} userDispatch={userDispatch} setTab={setTab} data={user.notifications} />
+                    </Route>
+                    <Route path='/flushes/:flushID'>
+                        <SpecificFlush specific={flushData.specific} flushDispatch={flushDispatch} user={user} />
+                    </Route>
+                    <Route path='/likes'>
+                        <Development setTab={setTab} />
+                    </Route>
+                    <Route path='/messages'>
+                        <Development setTab={setTab} />
+                    </Route>
+                    <Route path='/trending'>
+                        <Development setTab={setTab} />
+                    </Route>
+                    <Route path='/more'>
+                        <Development setTab={setTab} />
                     </Route>
                     <Route exact path='/'>
                         <FlushSection setTab={setTab} flushDispatch={flushDispatch} data={flushData.all} user={user} />
                     </Route>
                 </Grid>
-                <Grid item xs={12} sm={6}></Grid>
+                <Grid item xs={12} sm={6}>
+                    <Footer />
+                </Grid>
             </Grid>
         </div>
     )

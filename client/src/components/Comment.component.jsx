@@ -86,7 +86,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const Comment = ({ data, viewReplies, replyToReply, replyToComment, flushID, flushDispatch, specific }) => {
+const Comment = ({ user, data, viewReplies, replyToReply, replyToComment, flushID, flushDispatch, specific }) => {
     //Hooks
     const classes = useStyles();
     const [anchorEl, setAnchor] = useState(null);
@@ -110,7 +110,7 @@ const Comment = ({ data, viewReplies, replyToReply, replyToComment, flushID, flu
         else unlikeComment(data.commentID, flushDispatch);
     }
 
-    return specific? (
+    return specific ? (
         <>
             <div className={classes.root}>
                 <Avatar style={{ alignSelf: 'flex-start' }} src={data.imageUrl} />
@@ -132,70 +132,74 @@ const Comment = ({ data, viewReplies, replyToReply, replyToComment, flushID, flu
                         <Typography onClick={handleCommentLike} className={classes.interaction} variant='subtitle2' color={data.likedByUser ? 'primary' : 'textSecondary'}>Like</Typography>
                         <Typography onClick={replyToComment} className={classes.interaction} variant='subtitle2' color='textSecondary'>Reply</Typography>
                     </div>
-                    {(data.replyCount > 0 && !data.replies.length) && <Typography onClick={viewReplies} style={{ marginLeft: '8px', fontWeight: 'bold', cursor: 'pointer' }} color='textPrimary' variant='subtitle2'>View {data.replyCount} {data.replyCount > 1 ? 'replies' : 'reply'}</Typography>}
+                    {(data.replyCount > 0 && data.replies.length !== data.replyCount) && <Typography onClick={viewReplies} style={{ marginLeft: '8px', fontWeight: 'bold', cursor: 'pointer' }} color='textPrimary' variant='subtitle2'>View {data.replyCount - data.replies.length} {data.replyCount - data.replies.length > 1 ? 'replies' : 'reply'}</Typography>}
                 </div>
-                <IconButton onClick={(e) => setAnchor(e.currentTarget)} style={{ height: '32px', transform: 'translateY(-40%)' }} size='small'>
-                    <MoreHorizIcon />
-                </IconButton>
-                <Menu
-                    anchorEl={anchorEl}
-                    keepMounted
-                    open={Boolean(anchorEl)}
-                    onClose={handleMenuClose}
-                >
-                    <MenuItem onClick={() => {
-                        handleMenuClose();
-                        setDiagOpen('Edit');
-                    }}>Edit</MenuItem>
-                    <MenuItem onClick={() => {
-                        handleMenuClose();
-                        setDiagOpen('Delete')
-                    }}>Delete</MenuItem>
-                </Menu>
-                <Dialog open={Boolean(diagOpen)} onClose={() => setDiagOpen(false)}>
-                    {diagOpen === 'Delete' ?
-                        <>
-                            <DialogTitle>{diagOpen}</DialogTitle>
-                            <DialogContentText className={classes.diagContentText}>Are you sure you want to delete this comment?</DialogContentText>
-                            <DialogActions>
-                                <Button onClick={handleDiagClose} color="primary">
-                                    Cancel
-                        </Button>
-                                <Button onClick={() => {
-                                    handleDiagClose();
-                                    deleteComment(data.commentID, flushID, flushDispatch);
-                                }} style={{ color: '#e55039' }}>
-                                    Delete
-                        </Button>
-                            </DialogActions>
-                        </>
-                        : diagOpen === 'Edit' ?
-                            <div className={classes.editor}>
+                {data.username === user.credentials.username &&
+                <>
+                    <IconButton onClick={(e) => setAnchor(e.currentTarget)} style={{ height: '32px', transform: 'translateY(-40%)' }} size='small'>
+                        <MoreHorizIcon />
+                    </IconButton>
+                    <Menu
+                        anchorEl={anchorEl}
+                        keepMounted
+                        open={Boolean(anchorEl)}
+                        onClose={handleMenuClose}
+                    >
+                        <MenuItem onClick={() => {
+                            handleMenuClose();
+                            setDiagOpen('Edit');
+                        }}>Edit</MenuItem>
+                        <MenuItem onClick={() => {
+                            handleMenuClose();
+                            setDiagOpen('Delete')
+                        }}>Delete</MenuItem>
+                    </Menu>
+                    <Dialog open={Boolean(diagOpen)} onClose={() => setDiagOpen(false)}>
+                        {diagOpen === 'Delete' ?
+                            <>
                                 <DialogTitle>{diagOpen}</DialogTitle>
-                                <div>
-                                    <div className={classes.commentEditor}>
-                                        <Avatar style={{ marginRight: '8px' }} src={data.imageUrl} />
-                                        <TextField value={editText} onChange={(e) => setEditText(e.target.value)} variant='outlined' autoFocus multiline fullWidth />
+                                <DialogContentText className={classes.diagContentText}>Are you sure you want to delete this comment?</DialogContentText>
+                                <DialogActions>
+                                    <Button onClick={handleDiagClose} color="primary">
+                                        Cancel
+                                    </Button>
+                                    <Button onClick={() => {
+                                        handleDiagClose();
+                                        deleteComment(data.commentID, flushID, flushDispatch);
+                                    }} style={{ color: '#e55039' }}>
+                                        Delete
+                                    </Button>
+                                </DialogActions>
+                            </>
+                            : diagOpen === 'Edit' ?
+                                <div className={classes.editor}>
+                                    <DialogTitle>{diagOpen}</DialogTitle>
+                                    <div>
+                                        <div className={classes.commentEditor}>
+                                            <Avatar style={{ marginRight: '8px' }} src={data.imageUrl} />
+                                            <TextField value={editText} onChange={(e) => setEditText(e.target.value)} variant='outlined' autoFocus multiline fullWidth />
+                                        </div>
+                                        <DialogActions>
+                                            <Button onClick={handleDiagClose} color="primary">
+                                                Cancel
+                                            </Button>
+                                            <Button onClick={(e) => {
+                                                handleDiagClose();
+                                                handleEditComment();
+                                            }} color='primary'>
+                                                Save
+                                            </Button>
+                                        </DialogActions>
                                     </div>
-                                    <DialogActions>
-                                        <Button onClick={handleDiagClose} color="primary">
-                                            Cancel
-                            </Button>
-                                        <Button onClick={(e) => {
-                                            handleDiagClose();
-                                            handleEditComment();
-                                        }} color='primary'>
-                                            Save
-                            </Button>
-                                    </DialogActions>
-                                </div>
-                            </div> : ''
-                    }
-                </Dialog>
+                                </div> : ''
+                        }
+                    </Dialog>
+                </>
+                }
             </div>
-            {data.replies.length > 0 && data.replies.map((reply, i) => <Reply key={i} flushID={flushID} flushDispatch={flushDispatch} data={reply} reply={(reply) => replyToReply(reply)} />)}
+            {data.replies.length > 0 && data.replies.map((reply, i) => <Reply user={user} key={i} flushID={flushID} flushDispatch={flushDispatch} data={reply} reply={(reply) => replyToReply(reply)} />)}
         </>
-    ): <></>
+    ) : <></>
 }
 
 export default Comment;

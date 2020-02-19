@@ -123,7 +123,9 @@ exports.getOwnDetails = async (req, res) => {
             .get();
         userDetails.notifications = [];
         NotifData.forEach(doc => {
-            userDetails.notifications.push(doc.data());
+            let notif = doc.data();
+            notif.notifID = doc.id;
+            userDetails.notifications.push(notif);
         });
         res.json(userDetails);
     }
