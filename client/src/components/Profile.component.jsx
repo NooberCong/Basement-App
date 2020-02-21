@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import dayjs from 'dayjs';
 import axios from 'axios';
 import Flush from './Flush.component';
+import FlushSkeleton from './FlushSkeleton.component';
 import { isEmpty } from '../util/validators';
 
 
@@ -113,7 +114,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-
+console.log('Profile rerendering');
 
 const Profile = ({ user, updateUser, setUnauthenticated, setTab, flushDispatch, flushes }) => {
     setTab('Profile');
@@ -124,7 +125,6 @@ const Profile = ({ user, updateUser, setUnauthenticated, setTab, flushDispatch, 
     const [diagOpen, setDiagOpen] = useState(false);
     useEffect(() => {
         const waitForUserData = () => {
-            console.log(user.credentials);
             if (!isEmpty(user.credentials)) getUserFlushes(user.credentials.username, flushDispatch);
             else setTimeout(waitForUserData, 500);
         }
@@ -286,7 +286,12 @@ const Profile = ({ user, updateUser, setUnauthenticated, setTab, flushDispatch, 
                 </div>
             </div>
             <div className={classes.flushContainer}>
-                {flushes.map(flush => <Flush data={flush} key={flush.flushID} />)}
+                {flushes.length > 0 ? flushes.map(flush => <Flush data={flush} key={flush.flushID} />) :
+                    <>
+                        <FlushSkeleton />
+                        <FlushSkeleton />
+                    </>
+                }
             </div>
         </>
     )

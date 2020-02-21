@@ -13,7 +13,7 @@ export const validateUser = (user, userDispatch, axios) => {
     const token = localStorage.idToken;
     if (!token || jwtDecode(token).exp * 1000 < Date.now()) {
         userDispatch({ type: 'SET_UNAUTHENTICATED' });
-        window.location.href = '/auth';
+        window.location.href = '/#/auth';
     }
     else {
         if (!axios.defaults.headers.common.authToken) axios.defaults.headers.common.authToken = token;

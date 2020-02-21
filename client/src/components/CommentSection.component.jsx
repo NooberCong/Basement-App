@@ -69,6 +69,17 @@ const CommentSection = ({ data, flushDispatch, open, close, user, flushID }) => 
         setSubject(`Replying to ${comment.username}`);
     }
 
+    const handleBackButton = () => {
+        if (replyTo) {
+            setReplyTo(null);
+            setText('');
+            setSubject('Comment');
+        }
+        else {
+            close();
+        }
+    }
+
     const handleViewReplies = (comment) => {
         getReplies(comment.commentID, flushID, flushDispatch);
     }
@@ -77,17 +88,12 @@ const CommentSection = ({ data, flushDispatch, open, close, user, flushID }) => 
         <Dialog className={classes.root} open={open} onClose={() => {
             close();
             setReplyTo(false);
-            }} aria-labelledby="form-dialog-title">
+        }} aria-labelledby="form-dialog-title">
             <DialogTitle>
-                {replyTo &&
-                    <IconButton onClick={() => {
-                        setReplyTo(null);
-                        setText('');
-                        setSubject('Comment');
-                    }}>
-                        <ArrowBackIcon />
-                    </IconButton>
-                }{' '}
+                <IconButton onClick={handleBackButton}>
+                    <ArrowBackIcon />
+                </IconButton>
+                {' '}
                 {subject}
             </DialogTitle>
             <DialogContent className={classes.main}>

@@ -3,6 +3,7 @@ import queryString from 'query-string';
 import { useParams, useLocation } from 'react-router-dom';
 
 import Flush from '../components/Flush.component';
+import FlushSkeleton from '../components/FlushSkeleton.component';
 
 
 //Actions
@@ -21,7 +22,7 @@ const SpecificFlush = ({ specific, flushDispatch, user }) => {
         return () => freeSpecificFlush(flushDispatch);
     }, [flushDispatch, commentID, replyID, flushID, user.authenticated]);
     return (
-        specific.text ? <Flush data={specific} /> : <p>Loading...</p>
+        specific.text ? <Flush data={specific} /> : <FlushSkeleton />
     )
 }
 

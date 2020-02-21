@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { HashRouter as Router, Route, Switch } from 'react-router-dom';
 import { ThemeProvider as MuiThemeProvider } from '@material-ui/core/styles';
 import { UserProvider } from './context/userContext';
 import { FlushProvider } from './context/flushContext';

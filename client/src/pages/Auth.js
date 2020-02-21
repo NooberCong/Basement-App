@@ -229,12 +229,12 @@ const Auth = () => {
                         <Grid container>
                             {action === 'Sign In' &&
                             <Grid item xs>
-                                <Link href="#" variant="body2">
+                                <Link style={{cursor: 'pointer'}} variant="body2">
                                     Forgot password?
                                 </Link>
                             </Grid>}
                             <Grid item >
-                                <Link href="#" variant="body2" onClick={(e) => {setAction(action=== 'Sign In'? 'Sign Up': 'Sign In')}}>
+                                <Link style={{cursor: 'pointer'}} variant="body2" onClick={(e) => {setAction(action=== 'Sign In'? 'Sign Up': 'Sign In')}}>
                                     {action === 'Sign In'? "Don't have an account? Sign Up": "Already have an account? Sign In"}
                                 </Link>
                             </Grid>

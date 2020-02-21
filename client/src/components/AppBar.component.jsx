@@ -6,6 +6,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import MenuIcon from '@material-ui/icons/MenuRounded';
+import Hidden from '@material-ui/core/Hidden';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(theme => ({
@@ -23,25 +24,27 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const Bar = ({tab, toggleMobile }) => {
+const Bar = ({ tab, toggleMobile }) => {
     const classes = useStyles();
     return (
-        <AppBar position="fixed" className={classes.appBar}>
-            <Toolbar>
-                <IconButton
-                    color="inherit"
-                    aria-label="open drawer"
-                    edge="start"
-                    onClick={toggleMobile}
-                    className={classes.menuButton}
-                >
-                    <MenuIcon />
-                </IconButton>
-                <Typography variant="h6" noWrap>
-                    {tab}
+        <Hidden xsDown>
+            <AppBar position="fixed" className={classes.appBar}>
+                <Toolbar>
+                    <IconButton
+                        color="inherit"
+                        aria-label="open drawer"
+                        edge="start"
+                        onClick={toggleMobile}
+                        className={classes.menuButton}
+                    >
+                        <MenuIcon />
+                    </IconButton>
+                    <Typography variant="h6" noWrap>
+                        {tab}
                     </Typography>
-            </Toolbar>
-        </AppBar>
+                </Toolbar>
+            </AppBar>
+        </Hidden>
     )
 }
 

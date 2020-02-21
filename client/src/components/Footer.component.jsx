@@ -8,7 +8,10 @@ const useStyles = makeStyles(theme => ({
     brandName: {
         fontFamily: 'Tomorrow',
         fontSize: 64,
-        textAlign: 'center'
+        textAlign: 'center',
+        [theme.breakpoints.down('xs')]: {
+            fontSize: 32
+        }
         
     },
     socialMedia: {
@@ -25,7 +28,7 @@ const Footer = () => {
         <>
             <div className={classes.logo}>
                 <Typography className={classes.brandName}>Basement App</Typography>
-                <Typography className={classes.brandName}>v0.0.1</Typography>
+                <Typography className={classes.brandName}>v0.1.0</Typography>
             </div>
             <div className={classes.socialMedia}>
                 <Typography>Created by NooberCong with React</Typography>

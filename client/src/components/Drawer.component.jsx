@@ -124,23 +124,6 @@ const AppDrawer = ({ unread, tab, mobile, toggleMobile }) => {
 
     return (
         <nav className={classes.drawer} aria-label="mailbox folders">
-            {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-            <Hidden smUp implementation="css">
-                <Drawer
-                    variant="temporary"
-                    anchor={'left'}
-                    open={mobile}
-                    onClose={toggleMobile}
-                    classes={{
-                        paper: classes.drawerPaper,
-                    }}
-                    ModalProps={{
-                        keepMounted: true, // Better open performance on mobile.
-                    }}
-                >
-                    {drawer}
-                </Drawer>
-            </Hidden>
             <Hidden xsDown implementation="css">
                 <Drawer
                     classes={{

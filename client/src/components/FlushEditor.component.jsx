@@ -15,6 +15,7 @@ import ClearIcon from '@material-ui/icons/Clear';
 import { Avatar, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
+
 const useStyles = makeStyles(theme => ({
     writeFlush: {
         width: '100%',
@@ -80,6 +81,7 @@ const FlushEditor = ({ flush, flushDispatch, user, close, editBar }) => {
     const classes = useStyles();
     const [text, setText] = useState(flush.text ? flush.text : '');
     const [file, setFile] = useState(flush.photoUrl ? flush.photoUrl : '');
+    const [EmOpen, setEmOpen] = useState(false);
 
     //Helper Functions
     const handleSubmit = () => {
@@ -107,7 +109,7 @@ const FlushEditor = ({ flush, flushDispatch, user, close, editBar }) => {
             <div className={classes.upper}>
                 <Avatar src={user.credentials.imageUrl} className={classes.avatar} />
                 <form style={{ width: '100%' }}>
-                    <TextareaAutosize autoFocus value={text} onChange={(e) => setText(e.target.value)} placeholder="What's happening?..." className={classes.flushText} />
+                    <TextareaAutosize id={isEdit? 'flushEditor': 'flushWriter'} value={text} onChange={(e) => setText(e.target.value)} placeholder="What's happening?..." className={classes.flushText} />
                 </form>
             </div>
             {file &&
@@ -132,7 +134,7 @@ const FlushEditor = ({ flush, flushDispatch, user, close, editBar }) => {
                         </IconButton>
                     </Tooltip>
                     <Tooltip title='Insert Emoji' placement='top'>
-                        <IconButton size='small'>
+                        <IconButton onClick={() => setEmOpen(!EmOpen)} size='small'>
                             <EmojiEmotionsIcon color='primary' />
                         </IconButton>
                     </Tooltip>
